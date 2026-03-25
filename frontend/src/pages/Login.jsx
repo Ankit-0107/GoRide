@@ -22,7 +22,7 @@ export default function Login() {
       if (res.data && res.data.user && res.data.user.token) {
         localStorage.setItem("token", res.data.user.token);
         localStorage.removeItem("guestUser");
-        navigate("/home");
+        window.location.href = "/home";
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Login failed");
@@ -62,7 +62,7 @@ export default function Login() {
           onClick={() => {
             localStorage.setItem("token", "guest-token");
             localStorage.setItem("guestUser", "true");
-            navigate("/home");
+            window.location.href = "/home";
           }}
         >
           SKIP
