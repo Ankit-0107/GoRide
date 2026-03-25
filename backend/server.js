@@ -7,6 +7,8 @@ const cors = require('cors');
 const connectDB = require('./config/database');
 const rideRoutes = require('./routes/rideRoutes');
 const authRoutes = require('./routes/authRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+const mapboxRoutes = require('./routes/mapboxRoutes');
 const setupSocketHandlers = require('./sockets/rideSocket');
 
 // Initialize Express app
@@ -48,6 +50,8 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/rides', rideRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/mapbox', mapboxRoutes);
 
 // Setup Socket.io handlers
 setupSocketHandlers(io);
@@ -88,7 +92,7 @@ const startServer = async () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`🌐 API: http://localhost:${PORT}`);
       console.log(`📡 WebSocket: ws://localhost:${PORT}`);
-      console.log(`🗄️  Database: ${process.env.MONGODB_URI}`);
+      console.log(`🗄️  Database: Connected`);
       console.log('');
       console.log('✨ Ready to spread happiness!');
       console.log('');

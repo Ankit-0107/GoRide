@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const tabs = [
-  { label: "Home", path: "/" },
+  { label: "Home", path: "/home" },
   { label: "Community", path: "/community" },
   { label: "Campaigns", path: "/campaign" },
   { label: "Profile", path: "/profile" },

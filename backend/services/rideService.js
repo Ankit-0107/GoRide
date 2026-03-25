@@ -119,24 +119,67 @@ class RideService {
    */
   async getNearbyRides(latitude, longitude, radiusInKm = 10) {
     try {
-      const radiusInMeters = radiusInKm * 1000;
+      // 1. Fetch all active and scheduled rides 
+      // (Since ride volume is expected to be reasonable, filtering in memory allows processing full route paths)
+      const allRides = await Ride.find({
+        status: { $in: ['active', 'scheduled'] }
+      });
 
-      const rides = await Ride.find({
-        status: { $in: ['active', 'scheduled'] },
-        location: {
-          $nearSphere: {
-            $geometry: {
-              type: 'Point',
-              coordinates: [parseFloat(longitude), parseFloat(latitude)]
-            },
-            $maxDistance: radiusInMeters
+      const userLat = parseFloat(latitude);
+      const userLng = parseFloat(longitude);
+
+      // Helper function: Haversine distance in km
+      const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
+        const R = 6371; // Radius of the earth in km
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
+        const a = 
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+          Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+        return R * c; 
+      };
+
+      const nearbyRides = allRides.filter(ride => {
+        // Option 1: User is near the exact starting location
+        if (ride.location?.coordinates && ride.location.coordinates.length >= 2) {
+          const dist = getDistanceFromLatLonInKm(userLat, userLng, ride.location.coordinates[1], ride.location.coordinates[0]);
+          if (dist <= radiusInKm) return true;
+        }
+
+        // Option 2: User is near the destination
+        if (ride.destination?.coordinates && ride.destination.coordinates.length >= 2) {
+          const dist = getDistanceFromLatLonInKm(userLat, userLng, ride.destination.coordinates[1], ride.destination.coordinates[0]);
+          if (dist <= radiusInKm) return true;
+        }
+
+        // Option 3: User is near ANY waypoint or coordinate along the navigation route
+        if (ride.route && ride.route.geometry && Array.isArray(ride.route.geometry.coordinates)) {
+          let coords = ride.route.geometry.coordinates;
+          
+          // Flatten if MultiLineString
+          if (coords.length > 0 && Array.isArray(coords[0]) && Array.isArray(coords[0][0])) {
+            coords = coords.flat();
+          }
+
+          for (const coord of coords) {
+            if (Array.isArray(coord) && coord.length >= 2) {
+              const dist = getDistanceFromLatLonInKm(userLat, userLng, coord[1], coord[0]);
+              if (dist <= radiusInKm) {
+                return true; // Match found along the route!
+              }
+            }
           }
         }
+
+        // Not nearby
+        return false;
       });
 
       return {
         success: true,
-        rides
+        rides: nearbyRides
       };
     } catch (error) {
       console.error('Get nearby rides error:', error);
@@ -346,11 +389,11 @@ class RideService {
   }
 
   /**
-   * Delete a ride (Admin only)
+   * Delete a ride (only by creator)
    */
-  async deleteRide(rideId) {
+  async deleteRide(rideId, userName) {
     try {
-      const ride = await Ride.findByIdAndDelete(rideId);
+      const ride = await Ride.findById(rideId);
 
       if (!ride) {
         return {
@@ -358,6 +401,17 @@ class RideService {
           message: 'Ride not found'
         };
       }
+
+      // Only the creator can delete the ride
+      if (ride.createdByName && userName && ride.createdByName !== userName) {
+        return {
+          success: false,
+          status: 403,
+          message: 'Only the ride creator can delete this campaign'
+        };
+      }
+
+      await Ride.findByIdAndDelete(rideId);
 
       return {
         success: true,
@@ -417,6 +471,26 @@ class RideService {
       return {
         success: false,
         message: 'Failed to rate ride',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Get rides created by a specific user
+   */
+  async getRidesByCreator(createdByName) {
+    try {
+      const rides = await Ride.find({ createdByName }).sort({ createdAt: -1 });
+      return {
+        success: true,
+        rides
+      };
+    } catch (error) {
+      console.error('Get rides by creator error:', error);
+      return {
+        success: false,
+        message: 'Failed to fetch rides',
         error: error.message
       };
     }

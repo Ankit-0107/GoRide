@@ -12,8 +12,8 @@ export default function ActiveRides() {
 
   useEffect(() => {
     api.get("/rides/").then((res) => {
-      setRides(res.data);
-    });
+      setRides(res.data.rides || []);
+    }).catch(err => console.error("Error fetching active rides:", err));
   }, []);
 
   return (

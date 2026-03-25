@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Happiness Campaign App" />
+    <title>Happiness Campaign</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed-dim": "#fe5d39",
+                        "tertiary": "#e6a7ff",
+                        "primary-dim": "#ff7353",
+                        "on-primary-fixed-variant": "#5b0d00",
+                        "on-secondary-fixed-variant": "#922c35",
+                        "surface-dim": "#0e0e0e",
+                        "on-error-container": "#ffb2b9",
+                        "secondary-container": "#84222c",
+                        "on-secondary-container": "#ffc1c1",
+                        "on-secondary": "#49000c",
+                        "primary-container": "#ff7859",
+                        "error-container": "#a70138",
+                        "tertiary-fixed-dim": "#ce88ec",
+                        "on-primary": "#5f0e00",
+                        "tertiary-fixed": "#dc95fb",
+                        "on-surface-variant": "#adaaaa",
+                        "tertiary-dim": "#ce88ec",
+                        "on-surface": "#ffffff",
+                        "surface-tint": "#ff8f75",
+                        "inverse-surface": "#fcf9f8",
+                        "on-tertiary-container": "#50086f",
+                        "surface-container-high": "#201f1f",
+                        "outline": "#767575",
+                        "primary": "#ff8f75",
+                        "surface": "#0e0e0e",
+                        "inverse-on-surface": "#565555",
+                        "on-tertiary": "#5b1979",
+                        "on-error": "#490013",
+                        "surface-variant": "#262626",
+                        "secondary-dim": "#f5777c",
+                        "primary-fixed": "#ff7859",
+                        "on-tertiary-fixed-variant": "#5a1778",
+                        "outline-variant": "#484847",
+                        "error": "#ff6e84",
+                        "on-tertiary-fixed": "#2c0040",
+                        "on-background": "#ffffff",
+                        "on-primary-fixed": "#000000",
+                        "secondary-fixed-dim": "#ffafaf",
+                        "surface-container-highest": "#262626",
+                        "surface-container-low": "#131313",
+                        "secondary": "#f5777c",
+                        "error-dim": "#d73357",
+                        "surface-container-lowest": "#000000",
+                        "surface-container": "#1a1919",
+                        "on-secondary-fixed": "#6a0d1b",
+                        "inverse-primary": "#b52907",
+                        "on-primary-container": "#4a0900",
+                        "secondary-fixed": "#ffc3c3",
+                        "background": "#0e0e0e",
+                        "tertiary-container": "#dc95fb",
+                        "surface-bright": "#2c2c2c"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

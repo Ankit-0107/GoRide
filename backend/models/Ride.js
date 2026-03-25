@@ -73,6 +73,19 @@ const rideSchema = new mongoose.Schema({
     },
     coordinates: [Number] // [longitude, latitude]
   },
+  description: {
+    type: String,
+    default: ''
+  },
+  difficulty: {
+    type: String,
+    enum: ['easy', 'medium', 'hard', null],
+    default: null
+  },
+  createdByName: {
+    type: String,
+    default: 'Ride Leader'
+  },
   speed: {
     type: Number,
     default: 40 // km/h

@@ -243,13 +243,14 @@ const completeRide = async (req, res) => {
  */
 const deleteRide = async (req, res) => {
   try {
-    const result = await rideService.deleteRide(req.params.id);
+    const userName = req.user?.name || req.user?.user?.name || '';
+    const result = await rideService.deleteRide(req.params.id, userName);
 
     if (result.success) {
       return res.status(200).json(result);
     }
 
-    return res.status(404).json(result);
+    return res.status(result.status || 404).json(result);
   } catch (error) {
     console.error('Delete ride controller error:', error);
     return res.status(500).json({
@@ -297,6 +298,26 @@ const rateRide = async (req, res) => {
   }
 };
 
+/**
+ * Get rides created by a specific user
+ */
+const getRidesByCreator = async (req, res) => {
+  try {
+    const { createdByName } = req.query;
+    if (!createdByName) {
+      return res.status(400).json({ success: false, message: 'createdByName query param required' });
+    }
+    const result = await rideService.getRidesByCreator(createdByName);
+    if (result.success) {
+      return res.status(200).json(result);
+    }
+    return res.status(400).json(result);
+  } catch (error) {
+    console.error('Get rides by creator controller error:', error);
+    return res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   createRide,
   scheduleRide,
@@ -308,5 +329,6 @@ module.exports = {
   updateLocation,
   completeRide,
   deleteRide,
-  rateRide
+  rateRide,
+  getRidesByCreator
 };

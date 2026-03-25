@@ -19,6 +19,9 @@ router.get('/scheduled', rideController.getScheduledRides);
 // Get nearby rides
 router.get('/nearby', rideController.getNearbyRides);
 
+// Get rides created by a user (by createdByName)
+router.get('/my', rideController.getRidesByCreator);
+
 // Get all active rides
 router.get('/', rideController.getActiveRides);
 
@@ -31,8 +34,8 @@ router.post('/:rideId/join', protect, rideController.joinRide);
 // Rate a ride (authenticated users)
 router.post('/:id/rate', protect, rideController.rateRide);
 
-// Delete a ride (Admin only)
-router.delete('/:id', protect, adminOnly, rideController.deleteRide);
+// Delete a ride (authenticated users)
+router.delete('/:id', protect, rideController.deleteRide);
 
 // Update vehicle location
 router.put('/:rideId/location', rideController.updateLocation);
