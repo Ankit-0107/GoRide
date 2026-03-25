@@ -46,6 +46,7 @@ export default function CommunityChat() {
     // Simple polling for new messages every 3s
     const int = setInterval(fetchMessages, 3000);
     return () => clearInterval(int);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, targetId]);
 
   // Auto scroll to bottom

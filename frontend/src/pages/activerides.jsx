@@ -4,11 +4,9 @@ import RideCard from "../components/RideCard";
 import SectionHeader from "../components/SectionHeader";
 import { useEffect, useState } from "react";
 import api from "../api/api";
-import { useNavigate } from "react-router-dom";
 
 export default function ActiveRides() {
   const [rides, setRides] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     api.get("/rides/").then((res) => {
