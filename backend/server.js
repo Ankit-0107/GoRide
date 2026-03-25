@@ -47,6 +47,9 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Tiny ping route for cron-job.org
+app.get('/ping', (req, res) => res.send('OK'));
+
 // API Routes
 app.use('/api/rides', rideRoutes);
 app.use('/api/auth', authRoutes);
