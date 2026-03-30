@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -30,132 +33,172 @@ export default function Login() {
   };
 
   return (
-    <div className="bg-[#050505] font-body text-white flex flex-col items-center min-h-screen selection:bg-[#ff8f75]/30">
+    <div className="bg-[#0e0e0e] text-white font-body min-h-screen selection:bg-[#ff8f75] selection:text-[#5f0e00]" style={{ animation: 'authPageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
       <style>{`
-        .primary-gradient {
-            background: linear-gradient(135deg, #ff8f75 0%, #ff5e3a 100%);
-        }
-        .glow-border {
-            position: relative;
-        }
-        .glow-border::after {
-            content: '';
-            position: absolute;
-            inset: -1px;
-            background: linear-gradient(180deg, rgba(255, 143, 117, 0.3) 0%, rgba(255, 143, 117, 0) 40%, rgba(255, 143, 117, 0.05) 100%);
-            border-radius: inherit;
-            z-index: -1;
-            pointer-events: none;
-        }
-        .hero-mask {
-            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        @keyframes authPageEnter {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
-      
-      {/* Header */}
-      <header className="w-full max-w-md flex items-center justify-end px-6 py-8 z-20">
-        <button 
-          className="text-xs font-semibold text-[#949494] hover:text-white transition-colors"
-          onClick={() => {
-            localStorage.setItem("token", "guest-token");
-            localStorage.setItem("guestUser", "true");
-            window.location.href = "/home";
-          }}
-        >
-          SKIP
-        </button>
+      {/* Top Navigation Anchor */}
+      <header className="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-transparent">
+        <div className="flex items-center gap-2">
+          {/* Suppressed back button for Login flow */}
+        </div>
+        <h1 className="text-2xl font-black tracking-tighter text-white uppercase font-headline">GoRIDE</h1>
+        <div className="w-6"></div>
       </header>
 
-      <main className="w-full max-w-md flex flex-col items-center px-6 pb-12 relative">
-        {/* Perplexity-style Hero Image */}
-        <div className="fixed top-0 left-0 right-0 h-[55vh] w-full overflow-hidden hero-mask z-0">
-          <img alt="cyclist" className="w-full h-full object-cover grayscale opacity-40 brightness-75 contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGRPecQAUlj161_PQ-lqgWUcSlGMMvms7IgnT3LZF7ZKHAikssAv7GDH6z8IrOEOZGXSyiu2N03ppGi5rYbjbPfdUK-dQCcm7oXApYnjDbWiP5BRMRtEAsdY53pD1vcAZpFiQVscE6O_-mqP8I8kppxcq3fcqZkrWK5wC12QFH_YQ4bJDI3Y8exrTbndvCtnno68z-Vyf07Zr_scoV0L589CPjxqFoMJw79zMEVN_CV8Vj36s5xfHKoQqGyJqaWn9hLCIoEEm9WEk"/>
+      <main className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+        {/* Full Screen Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            alt="cyclist riding city"
+            className="w-full h-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDORtGFnREBRLzfMiMgkEMYynpdrI4kRmNeL3qrEARkCFx1dUOKmc1oVAh7NiYGp4-R73lVYkqk8CwW11GkyK0S_k0eStgAL2ooOFkMivamCgiBLt3XiiSQbeMIJkgR-iPE2_pD9NVd1HbxOUvnpVTjZ4vIqjP0PLBAje6gcRO8whQ9BJNG3mavRpHulte7m-gbxApA2tntp0q27EsjOle71KiqASYbMU5uWYud8QMvtNn7-mKHldkxdI8XzDS_BZtjyhCq6FyUqTI"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0e0e0e]/40 to-[#0e0e0e]/95"></div>
         </div>
 
-        {/* Content Container */}
-        <div className="w-full mt-[20vh] z-10 space-y-12">
-          {/* Typography Focus */}
-          <div className="text-center space-y-3">
-            <p className="text-[#ff8f75] font-['Plus_Jakarta_Sans'] text-[10px] tracking-[0.4em] uppercase font-bold">Performance Fuel</p>
-            <h1 className="text-4xl font-['Plus_Jakarta_Sans'] font-bold tracking-tight">GoRide.</h1>
-          </div>
-
-          {/* Login Inputs & CTAs */}
-          <div className="space-y-4">
-            {/* Social Buttons */}
-            <div className="space-y-3">
-              <button className="w-full h-14 bg-white text-black rounded-full flex items-center justify-center gap-3 hover:bg-zinc-200 transition-all font-semibold text-sm active:scale-[0.98]">
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path d="M17.05 20.28c-.96.95-2.04 1.44-3.23 1.47-1.15.03-2.1-.33-2.85-.33-.76 0-1.87.36-2.85.33-1.19-.03-2.27-.52-3.23-1.47-2-2-2.58-5.33-1.44-8.1 1.13-2.73 3.94-4.47 7-4.47 1.05 0 2.05.37 2.85.37.8 0 2.1-.37 3.35-.37 1.3 0 2.4.47 3.25 1.3-2.6 1.53-2.18 5.4.42 6.5-1.05 2.53-2.38 5.08-3.27 6.3zM14.6 3.6c0 1.9-1.57 3.53-3.4 3.53-.13 0-.27-.01-.39-.03.1-.22.18-.45.18-.69 0-1.8-1.46-3.46-3.3-3.46.12 0 .25.01.37.02 1.63.15 3.03 1.4 3.3 3.02 1.54-.15 2.92-1.25 3.24-2.39z" fill="currentColor"></path>
-                </svg>
-                Continue with Apple
-              </button>
-              <button className="w-full h-14 bg-white text-black rounded-full flex items-center justify-center gap-3 hover:bg-zinc-200 transition-all font-semibold text-sm active:scale-[0.98]">
-                <img alt="Google" className="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-YzgSWU8EYLRYMw5ZbCeS5z7Hib9nvVsXvPYFAdf6NlYbjM_Kt-n8ZmBxjcbQlVfDO0X8DnQ57EgOcEaQ_1WDKefyYiXn0VKdGYVNaKV4e_QuenKRk9ZfW6WccSfFTcstrigekOU1sJe91iVOZOZffhMrr0MySSmbRCD1wJiLGTDZ7e-jEW65-RH3C-0C9QRaQS2aGG6rxgNwHpRnxtf64pBkNVmji4cf5E4n6jwNSvn6v6ymkDpEFYkgWysAxAItsbM-39Netco"/>
-                Continue with Google
-              </button>
-            </div>
-
-            <div className="relative flex items-center py-4">
-              <div className="flex-grow border-t border-[#2a2a2a]"></div>
-              <span className="flex-shrink mx-4 text-[9px] text-[#949494] tracking-[0.3em] font-bold">OR</span>
-              <div className="flex-grow border-t border-[#2a2a2a]"></div>
-            </div>
-
-            {/* Main Form (Minimalist with Glow) */}
-            <form className="space-y-4" onSubmit={handleLogin}>
-              {error && (
-                <div className="bg-[#a70138]/20 px-6 py-3 rounded-lg border border-[#a70138]/20">
-                  <p className="text-[#ffb2b9] text-sm font-bold text-center">{error}</p>
-                </div>
-              )}
-              <div className="space-y-3">
-                <div className="glow-border rounded-[0.75rem] bg-[#121212]">
-                  <input className="w-full h-14 bg-transparent border-none outline-none focus:ring-0 text-sm px-6 placeholder:text-zinc-600 text-white" placeholder="Email address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                </div>
-                <div className="glow-border rounded-[0.75rem] bg-[#121212]">
-                  <input className="w-full h-14 bg-transparent border-none outline-none focus:ring-0 text-sm px-6 placeholder:text-zinc-600 text-white" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                </div>
-              </div>
-              
-              <div className="flex justify-center">
-                <a className="text-[11px] text-[#949494] hover:text-[#ff8f75] font-medium tracking-wide uppercase transition-colors" href="/forgot-password">Forgot password?</a>
-              </div>
-
+        {/* Login Container */}
+        <div className="relative z-10 w-full max-w-md px-8 py-12 flex flex-col gap-8">
+          {/* Auth Toggle */}
+          <div className="flex justify-center mb-4">
+            <div className="bg-[#2c2c2c]/40 backdrop-blur-xl p-1.5 rounded-full flex gap-1 border border-white/10">
               <button 
-                className="w-full h-14 primary-gradient rounded-full font-['Plus_Jakarta_Sans'] font-bold text-sm tracking-[0.15em] uppercase text-black active:scale-[0.97] transition-all shadow-xl shadow-[#ff8f75]/10 disabled:opacity-75"
-                type="submit"
-                disabled={loading}
+                type="button"
+                className="px-8 py-2.5 rounded-full text-sm font-bold tracking-widest bg-white text-black transition-all duration-300 ease-in-out uppercase font-headline shadow-lg"
               >
-                {loading ? "SIGNING IN..." : "SIGN IN"}
+                LOG IN
               </button>
-            </form>
+              <button 
+                type="button"
+                onClick={() => navigate('/register')}
+                className="px-8 py-2.5 rounded-full text-sm font-bold tracking-widest text-[#adaaaa] hover:text-white transition-all duration-300 ease-in-out uppercase font-headline"
+              >
+                SIGN UP
+              </button>
+            </div>
+          </div>
+
+          {/* Header Content */}
+          <div className="text-center space-y-2">
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight font-headline text-white uppercase">
+              Welcome back
+            </h2>
+            <p className="text-[#adaaaa] text-lg">Enter your details below</p>
+          </div>
+
+          {/* Form */}
+          <form className="space-y-4" onSubmit={handleLogin}>
+            {error && (
+              <div className="bg-[#ff6e84]/10 border border-[#ff6e84]/20 text-[#ff6e84] px-4 py-3 rounded-xl text-sm font-medium text-center">
+                {error}
+              </div>
+            )}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-widest text-[#adaaaa] ml-4 font-headline">
+                Your e-mail address
+              </label>
+              <div className="relative">
+                <input
+                  className="w-full bg-[#201f1f]/60 backdrop-blur-md border-none focus:ring-2 focus:ring-[#ff8f75] rounded-xl px-6 py-5 text-white placeholder:text-[#adaaaa]/50 transition-all outline-none"
+                  placeholder="example@goride.com"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-widest text-[#adaaaa] ml-4 font-headline">
+                Your password
+              </label>
+              <div className="relative">
+                <input
+                  className="w-full bg-[#201f1f]/60 backdrop-blur-md border-none focus:ring-2 focus:ring-[#ff8f75] rounded-xl px-6 py-5 text-white placeholder:text-[#adaaaa]/50 transition-all outline-none"
+                  placeholder="••••••••"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#adaaaa] hover:text-[#ff8f75] transition-colors"
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              className="w-full bg-[#e6a7ff] text-[#50086f] py-5 rounded-full font-black text-lg tracking-widest hover:brightness-110 active:scale-[0.98] transition-all uppercase font-headline mt-4 shadow-xl disabled:opacity-50"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "LOGGING IN..." : "LOG IN"}
+            </button>
+            <div className="text-center pt-2">
+              <button type="button" className="text-[#adaaaa] hover:text-[#ff8f75] text-sm font-medium transition-colors border-b border-transparent hover:border-[#ff8f75] pb-0.5">
+                Forgot password?
+              </button>
+            </div>
+          </form>
+
+          {/* Social Logins */}
+          <div className="mt-8">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px bg-white/10 flex-1"></div>
+              <span className="text-xs font-bold text-[#adaaaa]/60 uppercase tracking-widest font-headline">
+                OR CONTINUE WITH
+              </span>
+              <div className="h-px bg-white/10 flex-1"></div>
+            </div>
+
+            <div className="flex justify-center gap-6">
+              <button 
+                type="button"
+                className="w-14 h-14 rounded-full bg-[#2c2c2c]/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90"
+              >
+                <img
+                  alt="Google"
+                  className="w-6 h-6 grayscale brightness-200 contrast-200"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt5R2p_mq__oM_p_XNifjzNfyzpBadHRQd7cNp_YbOKs2cuu8p59mrx2bT5eSCKsVQ5MkYxEFGH3cr6g6MSNM6QtT6Doi4Xx-Us-4ruTkClgstKDliUWNra7Ra0XqHELUinOXOfUVOtm9fmRvRqO_OZ35Ut05yECSMMTx7FI7i2LeHoOmejqTW_q5c67vPe9S3QvmdmQl4hqd3NRLqvJ5UWknQl5fghejzG0G6xEjfb1AkvP_mfmxXPmUutOH83RP6FejB35HMXDQ"
+                />
+              </button>
+              <button 
+                type="button"
+                className="w-14 h-14 rounded-full bg-[#2c2c2c]/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90"
+              >
+                <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  ios
+                </span>
+              </button>
+              <button 
+                type="button"
+                className="w-14 h-14 rounded-full bg-[#2c2c2c]/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90"
+              >
+                <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  social_leaderboard
+                </span>
+              </button>
+            </div>
           </div>
         </div>
-
-        {/* Footer */}
-        <footer className="mt-16 text-center z-10">
-          <p className="text-xs text-[#949494] font-medium">
-            Don't have an account? 
-            <a className="text-[#ff8f75] font-bold ml-1 hover:underline underline-offset-4" href="/register">Sign Up</a>
-          </p>
-          <div className="mt-8 flex justify-center gap-6 text-[10px] text-zinc-600 font-semibold tracking-wider uppercase">
-            <a className="hover:text-zinc-400" href="/privacy">Privacy Policy</a>
-            <a className="hover:text-zinc-400" href="/terms">Terms of Service</a>
-          </div>
-        </footer>
       </main>
-
-      {/* Noise Texture Overlay */}
-      <div className="pointer-events-none fixed inset-0 z-[100] opacity-[0.02] mix-blend-overlay">
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <filter id="noise">
-            <feTurbulence baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" type="fractalNoise"></feTurbulence>
-          </filter>
-          <rect filter="url(#noise)" height="100%" width="100%"></rect>
-        </svg>
-      </div>
     </div>
   );
 }
