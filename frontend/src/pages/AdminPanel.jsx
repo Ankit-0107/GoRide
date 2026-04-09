@@ -20,6 +20,7 @@ export default function AdminPanel() {
       return;
     }
     fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showToast = (msg) => {
