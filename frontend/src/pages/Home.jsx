@@ -75,6 +75,15 @@ export default function Home() {
           </h1>
         </div>
         <div className="flex items-center gap-4">
+          {localStorage.getItem("userRole") === "admin" && (
+            <button 
+              onClick={() => navigate("/admin")}
+              className="w-10 h-10 rounded-full bg-[#201f1f] flex items-center justify-center text-[#e6a7ff] hover:opacity-70 transition-opacity active:scale-95 duration-300"
+              title="Admin Panel"
+            >
+              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>shield_person</span>
+            </button>
+          )}
           <button className="w-10 h-10 rounded-full bg-[#201f1f] flex items-center justify-center text-[#ff7859] hover:opacity-70 transition-opacity active:scale-95 duration-300">
             <span className="material-symbols-outlined text-2xl">notifications</span>
           </button>

@@ -17,6 +17,7 @@ import Chat from "./pages/chat";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CreateCommunity from "./pages/CreateCommunity";
+import AdminPanel from "./pages/AdminPanel";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -46,6 +47,7 @@ function App() {
         <Route path="/ride/:id" element={token ? <RideDetails /> : <Navigate to="/login" />} />
         <Route path="/create-ride" element={token ? <CreateRide /> : <Navigate to="/login" />} />
         <Route path="/chat/:id" element={token ? <Chat /> : <Navigate to="/login" />} />
+        <Route path="/admin" element={token ? <AdminPanel /> : <Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   );

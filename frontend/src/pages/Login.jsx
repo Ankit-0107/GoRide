@@ -22,6 +22,9 @@ export default function Login() {
       const res = await api.post("/auth/login", { email, password });
       if (res.data && res.data.user && res.data.user.token) {
         localStorage.setItem("token", res.data.user.token);
+        localStorage.setItem("userRole", res.data.user.role || "user");
+        localStorage.setItem("userName", res.data.user.name || "");
+        localStorage.setItem("userEmail", res.data.user.email || "");
         localStorage.removeItem("guestUser");
         window.location.href = "/home";
       }

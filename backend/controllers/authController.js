@@ -72,11 +72,16 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ success: false, message: 'User already exists' });
         }
 
+        // Auto-assign admin role if email matches master admin
+        const masterAdminEmail = (process.env.MASTER_ADMIN_EMAIL || '').toLowerCase().trim();
+        const assignedRole = (email.toLowerCase().trim() === masterAdminEmail && masterAdminEmail) ? 'admin' : 'user';
+
         // Create user
         const user = await User.create({
             name,
             email,
             password,
+            role: assignedRole,
         });
 
         if (user) {
@@ -113,6 +118,13 @@ const loginUser = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (user && (await user.matchPassword(password))) {
+            // Auto-promote to admin if email matches master admin and user isn't already admin
+            const masterAdminEmail = (process.env.MASTER_ADMIN_EMAIL || '').toLowerCase().trim();
+            if (user.email === masterAdminEmail && masterAdminEmail && user.role !== 'admin') {
+                user.role = 'admin';
+                await user.save();
+            }
+
             res.json({
                 success: true,
                 user: {
