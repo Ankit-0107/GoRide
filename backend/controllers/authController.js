@@ -93,8 +93,10 @@ const registerUser = async (req, res) => {
                 user: {
                     _id: user.id,
                     name: user.name,
+                    username: user.username,
                     email: user.email,
                     role: user.role,
+                    isPublic: user.isPublic,
                     token: generateToken(user._id),
                 }
             });
@@ -130,8 +132,10 @@ const loginUser = async (req, res) => {
                 user: {
                     _id: user.id,
                     name: user.name,
+                    username: user.username,
                     email: user.email,
                     role: user.role,
+                    isPublic: user.isPublic,
                     token: generateToken(user._id),
                 }
             });

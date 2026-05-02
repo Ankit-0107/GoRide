@@ -28,8 +28,10 @@ export default function Register() {
       const res = await api.post("/auth/register", { name, email, password });
       if (res.data && res.data.user && res.data.user.token) {
         localStorage.setItem("token", res.data.user.token);
+        localStorage.setItem("userId", res.data.user._id || "");
         localStorage.setItem("userRole", res.data.user.role || "user");
         localStorage.setItem("userName", res.data.user.name || "");
+        localStorage.setItem("userUsername", res.data.user.username || "");
         localStorage.setItem("userEmail", res.data.user.email || "");
         localStorage.removeItem("guestUser");
         navigate("/home");

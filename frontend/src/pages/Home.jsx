@@ -10,6 +10,7 @@ export default function Home() {
   const [nearbyCampaigns, setNearbyCampaigns] = useState([]);
   const [recommendedOpen, setRecommendedOpen] = useState(true);
   const [scheduledPage, setScheduledPage] = useState(0);
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
   const RIDES_PER_PAGE = 4;
 
   useEffect(() => {
@@ -21,6 +22,11 @@ export default function Home() {
       api.get("/auth/me")
         .then((res) => setUserName(res.data.name || res.data.user?.name || "User"))
         .catch(() => setUserName("User"));
+
+      // Fetch unread notification count
+      api.get("/notifications/unread-count")
+        .then((res) => setUnreadNotifs(res.data.count || 0))
+        .catch(() => {});
     }
 
     // Fetch scheduled rides
@@ -84,8 +90,16 @@ export default function Home() {
               <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>shield_person</span>
             </button>
           )}
-          <button className="w-10 h-10 rounded-full bg-[#201f1f] flex items-center justify-center text-[#ff7859] hover:opacity-70 transition-opacity active:scale-95 duration-300">
+          <button 
+            onClick={() => navigate("/notifications-page")}
+            className="w-10 h-10 rounded-full bg-[#201f1f] flex items-center justify-center text-[#ff7859] hover:opacity-70 transition-opacity active:scale-95 duration-300 relative"
+          >
             <span className="material-symbols-outlined text-2xl">notifications</span>
+            {unreadNotifs > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-[#ff6e84] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                {unreadNotifs > 99 ? '99+' : unreadNotifs}
+              </span>
+            )}
           </button>
         </div>
       </header>
