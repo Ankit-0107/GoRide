@@ -6,6 +6,7 @@ import BottomNav from "../components/BottomNav";
 
 export default function Home() {
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const [userName, setUserName] = useState("");
   const [scheduledRides, setScheduledRides] = useState([]);
   const [nearbyCampaigns, setNearbyCampaigns] = useState([]);
@@ -57,6 +58,7 @@ export default function Home() {
     }
   }, []);
 
+  // eslint-disable-next-line no-unused-vars
   const formatDate = (dateStr) => {
     if (!dateStr) return { date: "TBD", time: "TBD" };
     const d = new Date(dateStr);

@@ -5,6 +5,7 @@ import BottomNav from "../components/BottomNav";
 
 export default function Campaign() {
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const [userName, setUserName] = useState("");
   const [myRides, setMyRides] = useState([]);
 
