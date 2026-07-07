@@ -1,0 +1,74 @@
+/* ============================================
+   GC Gatuzo Font Family
+   ============================================
+   A complete 8-weight font family for use
+   throughout the GoRIDE application.
+   
+   Usage in CSS:
+     font-family: 'GC Gatuzo', sans-serif;
+     font-weight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800;
+   ============================================ */
+
+@font-face {
+  font-family: 'GC Gatuzo';
+  src: url('./gc-gatuzo-font/GcGatuzodemoThin-0vp69.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GC Gatuzo';
+  src: url('./gc-gatuzo-font/GcGatuzodemoExtraLight-LVD5W.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GC Gatuzo';
+  src: url('./gc-gatuzo-font/GcGatuzodemoLight-XG859.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GC Gatuzo';
+  src: url('./gc-gatuzo-font/GcGatuzodemoRegular-ovZ6d.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GC Gatuzo';
+  src: url('./gc-gatuzo-font/GcGatuzodemoMedium-gwoJ1.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GC Gatuzo';
+  src: url('./gc-gatuzo-font/GcGatuzodemoSemiBold-4np6p.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GC Gatuzo';
+  src: url('./gc-gatuzo-font/GcGatuzodemoExtraBold-PVD5m.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GC Gatuzo';
+  src: url('./gc-gatuzo-font/GcGatuzodemoBold-drLJX.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}

@@ -83,7 +83,7 @@ export default function CreateCommunity() {
         </div>
       </header>
 
-      <main className="px-6 max-w-2xl mx-auto space-y-10 pt-20">
+      <main className="w-full max-w-4xl mx-auto px-6 space-y-10 pt-20">
         {/* Hero Section/Visual */}
         <section className="relative h-48 w-full rounded-xl overflow-hidden mb-8 group">
           <img 

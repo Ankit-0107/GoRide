@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGoogleLogin } from '@react-oauth/google';
 import api from "../api/api";
 
 export default function Register() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,7 +16,7 @@ export default function Register() {
 
   const handleRegister = async (e) => {
     if (e) e.preventDefault();
-    if (!name || !email || !password) {
+    if (!name || !username || !email || !password) {
       setError("Please fill in all fields.");
       return;
     }
@@ -25,12 +27,14 @@ export default function Register() {
     try {
       setLoading(true);
       setError("");
-      const res = await api.post("/auth/register", { name, email, password });
+      const res = await api.post("/auth/register", { name, username, email, password });
       if (res.data && res.data.user && res.data.user.token) {
-        localStorage.setItem("token", res.data.user.token);
-        localStorage.setItem("userRole", res.data.user.role || "user");
-        localStorage.setItem("userName", res.data.user.name || "");
-        localStorage.setItem("userEmail", res.data.user.email || "");
+        const user = res.data.user;
+        localStorage.setItem("token", user.token);
+        localStorage.setItem('userRole', user.role || 'user');
+        localStorage.setItem('userName', user.name || '');
+        localStorage.setItem('userUsername', user.username || '');
+        localStorage.setItem('userEmail', user.email || '');
         localStorage.removeItem("guestUser");
         navigate("/home");
       }
@@ -40,6 +44,33 @@ export default function Register() {
       setLoading(false);
     }
   };
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setLoading(true);
+        setError("");
+        const res = await api.post("/auth/google", { token: tokenResponse.access_token });
+        if (res.data && res.data.user && res.data.user.token) {
+          const user = res.data.user;
+          localStorage.setItem("token", user.token);
+          localStorage.setItem('userRole', user.role || 'user');
+          localStorage.setItem('userName', user.name || '');
+          localStorage.setItem('userUsername', user.username || '');
+          localStorage.setItem('userEmail', user.email || '');
+          localStorage.removeItem("guestUser");
+          navigate("/home");
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || err.message || "Google signup failed");
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      setError("Google Signup failed");
+    }
+  });
 
   return (
     <div className="bg-[#0e0e0e] text-white font-body min-h-screen flex flex-col selection:bg-[#ff8f75] selection:text-[#5f0e00]" style={{ animation: 'authPageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
@@ -55,25 +86,10 @@ export default function Register() {
           }
         }
       `}</style>
-      {/* Top Navigation Header */}
-      <header className="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-transparent">
-        <div className="flex items-center gap-4">
-          <button 
-            type="button"
-            onClick={() => navigate('/login')}
-            className="text-white hover:opacity-80 transition-opacity scale-95 active:scale-90 transition-transform"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-        </div>
-        <div className="font-headline font-black tracking-tighter text-2xl text-white uppercase">
-          GoRIDE
-        </div>
-        <div className="w-10"></div>
-      </header>
+
 
       {/* Main Content Area with Full Screen Image */}
-      <main className="flex-grow flex flex-col items-center justify-center relative pt-20 overflow-hidden">
+      <main className="flex-grow flex flex-col items-center justify-center relative overflow-hidden">
         {/* Full Screen Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img
@@ -81,25 +97,36 @@ export default function Register() {
             className="w-full h-full object-cover"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJfjpGUgBLcECriq5mdowsDlL3QoXnmmrMMNxOkWlHR49x8DdohIMIVYSY_bCCB0d4TrCBCL-UEBp1f6wVzc5QtR02xccAbWEBRcEYfojQtaEZI2iO5FG2Z8VmLWvCekcQX0vTt59e5YepCOH8ff3Csx3mtIWGoOYf0PibTGyGA75Db2q7Nerou57w07Y4tM8lR-NJmMHWBmWvVnaSbkg4I5LedUQYPuksgUl2J6NAbt3CNfENTHA3HfkUCE8qNpvuVWQCqtklSRI"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0e0e0e]/40 to-[#0e0e0e]/95"></div>
+          <div className="absolute inset-0 bg-[#0e0e0e]/80 backdrop-blur-[4px]"></div>
+          {/* Floating Orbs */}
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#ff8f75]/20 rounded-full blur-[80px] animate-float pointer-events-none"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#e6a7ff]/10 rounded-full blur-[80px] animate-float pointer-events-none" style={{ animationDelay: '2s' }}></div>
         </div>
 
-        <div className="relative z-10 w-full max-w-md px-8 py-10 flex flex-col items-center gap-8">
+        <div className="relative z-10 w-full max-w-md px-8 py-10 flex flex-col items-center gap-8 glass-card rounded-[2rem] glow-border shadow-2xl mx-4 mb-8">
+          {/* GoRIDE Title */}
+          <div className="font-headline font-black tracking-tighter text-2xl uppercase gradient-text animate-pulse duration-1000 text-center">
+            GoRIDE
+          </div>
+
           {/* Auth Toggle Switch */}
-          <div className="flex bg-[#131313]/60 backdrop-blur-md rounded-full p-1 w-full max-w-[280px]">
-            <button 
-              type="button"
-              onClick={() => navigate('/login')}
-              className="flex-1 py-3 px-6 rounded-full font-headline font-extrabold text-sm tracking-widest text-[#adaaaa] hover:text-white transition-all duration-300 ease-in-out"
-            >
-              LOG IN
-            </button>
-            <button 
-              type="button"
-              className="flex-1 py-3 px-6 rounded-full font-headline font-extrabold text-sm tracking-widest bg-gradient-to-r from-[#ff8f75] to-[#ff7859] text-black transition-all duration-300 ease-in-out"
-            >
-              SIGN UP
-            </button>
+          <div className="flex justify-center mb-4 w-full">
+            <div className="bg-[#2c2c2c]/40 backdrop-blur-xl p-1.5 rounded-full flex gap-1 border border-white/10 relative w-full">
+              <div className="absolute inset-y-1.5 right-1.5 w-[calc(50%-6px)] bg-gradient-brand rounded-full transition-transform duration-300 shadow-[0_0_15px_rgba(255,143,117,0.3)]"></div>
+              <button 
+                type="button"
+                onClick={() => navigate('/login')}
+                className="relative z-10 flex-1 py-2.5 rounded-full text-sm font-bold tracking-widest text-[#adaaaa] hover:text-white transition-all duration-300 ease-in-out uppercase font-headline"
+              >
+                LOG IN
+              </button>
+              <button 
+                type="button"
+                className="relative z-10 flex-1 py-2.5 rounded-full text-sm font-bold tracking-widest text-black transition-all duration-300 ease-in-out uppercase font-headline"
+              >
+                SIGN UP
+              </button>
+            </div>
           </div>
 
           <form onSubmit={handleRegister} className="w-full space-y-6">
@@ -117,7 +144,7 @@ export default function Register() {
                 </label>
                 <div className="relative">
                   <input
-                    className="w-full bg-[#2c2c2c]/40 border-none rounded-xl px-6 py-4 text-white placeholder:text-[#484847] focus:ring-2 focus:ring-[#ff8f75]/50 transition-all backdrop-blur-sm outline-none"
+                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-6 py-4 text-white placeholder:text-[#484847] focus:ring-2 focus:ring-[#ff8f75] focus:bg-[#1a1a1a] transition-all outline-none"
                     placeholder="Alex Rider"
                     type="text"
                     value={name}
@@ -129,11 +156,27 @@ export default function Register() {
 
               <div className="space-y-2">
                 <label className="block text-[10px] font-headline font-bold uppercase tracking-[0.2em] text-[#adaaaa] ml-4">
+                  Choose a username
+                </label>
+                <div className="relative">
+                  <input
+                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-6 py-4 text-white placeholder:text-[#484847] focus:ring-2 focus:ring-[#ff8f75] focus:bg-[#1a1a1a] transition-all outline-none"
+                    placeholder="@rider_name"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-[10px] font-headline font-bold uppercase tracking-[0.2em] text-[#adaaaa] ml-4">
                   Your e-mail address
                 </label>
                 <div className="relative">
                   <input
-                    className="w-full bg-[#2c2c2c]/40 border-none rounded-xl px-6 py-4 text-white placeholder:text-[#484847] focus:ring-2 focus:ring-[#ff8f75]/50 transition-all backdrop-blur-sm outline-none"
+                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-6 py-4 text-white placeholder:text-[#484847] focus:ring-2 focus:ring-[#ff8f75] focus:bg-[#1a1a1a] transition-all outline-none"
                     placeholder="ride@example.com"
                     type="email"
                     value={email}
@@ -149,7 +192,7 @@ export default function Register() {
                 </label>
                 <div className="relative">
                   <input
-                    className="w-full bg-[#2c2c2c]/40 border-none rounded-xl px-6 py-4 text-white placeholder:text-[#484847] focus:ring-2 focus:ring-[#ff8f75]/50 transition-all backdrop-blur-sm outline-none"
+                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-6 py-4 text-white placeholder:text-[#484847] focus:ring-2 focus:ring-[#ff8f75] focus:bg-[#1a1a1a] transition-all outline-none"
                     placeholder="••••••••"
                     type={showPassword ? "text" : "password"}
                     value={password}
@@ -158,7 +201,7 @@ export default function Register() {
                   />
                   <button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#adaaaa] hover:text-white transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#adaaaa] hover:text-[#ff8f75] transition-transform hover:rotate-12"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>
@@ -174,7 +217,7 @@ export default function Register() {
                 </label>
                 <div className="relative">
                   <input
-                    className="w-full bg-[#2c2c2c]/40 border-none rounded-xl px-6 py-4 text-white placeholder:text-[#484847] focus:ring-2 focus:ring-[#ff8f75]/50 transition-all backdrop-blur-sm outline-none"
+                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-6 py-4 text-white placeholder:text-[#484847] focus:ring-2 focus:ring-[#ff8f75] focus:bg-[#1a1a1a] transition-all outline-none"
                     placeholder="••••••••"
                     type={showPassword ? "text" : "password"}
                     value={confirmPassword}
@@ -189,7 +232,7 @@ export default function Register() {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full py-5 rounded-full bg-[#dc95fb] text-[#50086f] font-headline font-black text-lg tracking-widest shadow-[0px_24px_48px_rgba(255,143,117,0.1)] hover:scale-[1.02] active:scale-95 transition-all uppercase disabled:opacity-75 disabled:hover:scale-100 mt-6"
+              className="w-full py-5 rounded-full bg-gradient-brand text-black font-headline font-black text-lg tracking-widest glow-shadow hover:brightness-110 active:scale-[0.98] transition-all uppercase disabled:opacity-50 mt-6"
             >
               {loading ? "SIGNING UP..." : "SIGN UP"}
             </button>
@@ -207,31 +250,31 @@ export default function Register() {
           {/* Social Icons */}
           <div className="flex justify-center gap-6">
             <button 
-              type="button" 
-              className="w-14 h-14 rounded-full flex items-center justify-center bg-[#201f1f]/80 backdrop-blur-md hover:bg-[#2c2c2c] transition-colors text-white"
+              type="button"
+              onClick={() => loginWithGoogle()}
+              className="w-14 h-14 rounded-full glass-card flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90 hover-glow-shadow"
             >
-              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+              <img
+                alt="Google"
+                className="w-6 h-6 grayscale brightness-200 contrast-200"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt5R2p_mq__oM_p_XNifjzNfyzpBadHRQd7cNp_YbOKs2cuu8p59mrx2bT5eSCKsVQ5MkYxEFGH3cr6g6MSNM6QtT6Doi4Xx-Us-4ruTkClgstKDliUWNra7Ra0XqHELUinOXOfUVOtm9fmRvRqO_OZ35Ut05yECSMMTx7FI7i2LeHoOmejqTW_q5c67vPe9S3QvmdmQl4hqd3NRLqvJ5UWknQl5fghejzG0G6xEjfb1AkvP_mfmxXPmUutOH83RP6FejB35HMXDQ"
+              />
+            </button>
+            <button 
+              type="button" 
+              className="w-14 h-14 rounded-full glass-card flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90 hover-glow-shadow"
+            >
+              <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                 ios
               </span>
             </button>
             <button 
               type="button"
-              className="w-14 h-14 rounded-full flex items-center justify-center bg-[#201f1f]/80 backdrop-blur-md hover:bg-[#2c2c2c] transition-colors text-[#1877F2]"
+              className="w-14 h-14 rounded-full glass-card flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90 hover-glow-shadow"
             >
-              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                 social_leaderboard
               </span>
-            </button>
-            <button 
-              type="button"
-              className="w-14 h-14 rounded-full flex items-center justify-center bg-[#201f1f]/80 backdrop-blur-md hover:bg-[#2c2c2c] transition-colors text-white"
-            >
-              <svg className="w-6 h-6" viewBox="0 0 24 24">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="currentColor"></path>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="currentColor"></path>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="currentColor"></path>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="currentColor"></path>
-              </svg>
             </button>
           </div>
         </div>

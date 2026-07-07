@@ -19,14 +19,14 @@ function LocationInput({ icon, label, placeholder, value, onChange, onSelect, ic
     clearTimeout(timerRef.current);
     onChange(q);
     if (q.length < 3) { setSuggestions([]); return; }
-    
+
     timerRef.current = setTimeout(async () => {
       try {
         const res = await api.get(`/mapbox/geocode?q=${encodeURIComponent(q)}`);
         const features = res.data.features || [];
         setSuggestions(features);
         setOpen(true);
-        
+
         if (features.length > 0) {
           onSelect(features[0].place_name, features[0].center, false);
         }
@@ -176,7 +176,7 @@ export default function CreateCampaign() {
     if (!isGuest) {
       api.get("/auth/me")
         .then((res) => setCreatorName(res.data.name || res.data.user?.name || "Ride Leader"))
-        .catch(() => {});
+        .catch(() => { });
     }
   }, []);
 
@@ -224,7 +224,7 @@ export default function CreateCampaign() {
         <div className="flex items-center gap-4">
           <button
             className="active:scale-95 duration-200 hover:bg-[#1a1919] transition-colors p-2 rounded-full"
-            onClick={() => navigate("/campaign")}
+            onClick={() => navigate("/home")}
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
@@ -233,7 +233,7 @@ export default function CreateCampaign() {
         <div className="w-10"></div>
       </header>
 
-      <main className="pb-32 px-6 pt-4 space-y-10 max-w-md mx-auto">
+      <main className="w-full max-w-4xl mx-auto pb-32 px-6 pt-4 space-y-10">
         {/* Error Banner */}
         {error && (
           <div className="bg-[#a70138]/20 px-6 py-3 rounded-xl border border-[#a70138]/20">
@@ -261,7 +261,7 @@ export default function CreateCampaign() {
                 Description
               </label>
               <textarea
-                className="w-full bg-surface-container-highest border-none rounded-xl px-5 py-4 text-on-surface placeholder:text-outline focus:ring-0 focus:bg-surface-bright transition-all duration-300 font-body resize-none"
+                className="w-full bg-surface-container-highest border-none rounded-[32px] px-5 py-4 text-on-surface placeholder:text-outline focus:ring-0 focus:bg-surface-bright transition-all duration-300 font-body resize-none"
                 placeholder="A high-intensity climb through the northern trails..."
                 rows="3"
                 value={description}
@@ -344,7 +344,7 @@ export default function CreateCampaign() {
         <section className="space-y-6">
           <h2 className="font-headline font-extrabold text-2xl tracking-tight text-primary">Schedule</h2>
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-surface-container-highest p-4 rounded-xl flex flex-col gap-1">
+            <div className="bg-surface-container-highest p-4 rounded-[32px] flex flex-col gap-1">
               <span className="material-symbols-outlined text-primary text-xl mb-2">calendar_today</span>
               <p className="text-[10px] uppercase font-bold text-on-surface-variant">Date</p>
               <input
@@ -355,7 +355,7 @@ export default function CreateCampaign() {
                 style={{ colorScheme: "dark" }}
               />
             </div>
-            <div className="bg-surface-container-highest p-4 rounded-xl flex flex-col gap-1">
+            <div className="bg-surface-container-highest p-4 rounded-[32px] flex flex-col gap-1">
               <span className="material-symbols-outlined text-primary text-xl mb-2">schedule</span>
               <p className="text-[10px] uppercase font-bold text-on-surface-variant">Time</p>
               <input

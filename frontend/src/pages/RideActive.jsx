@@ -64,6 +64,7 @@ export default function RideActive() {
       .then((res) => {
         const data = res.data.ride || res.data;
         setRide(data);
+        if (data.status === "paused") setIsPaused(true);
 
         if (data.route && data.route.geometry && Array.isArray(data.route.geometry.coordinates)) {
           let coords = data.route.geometry.coordinates;
@@ -129,6 +130,18 @@ export default function RideActive() {
           navigate("/campaign");
         });
     }
+  };
+
+  const handlePauseToggle = () => {
+    if (!id) return;
+    const newStatus = isPaused ? "ongoing" : "paused";
+    api.put(`/rides/${id}/status`, { status: newStatus })
+      .then((res) => {
+        setIsPaused(!isPaused);
+        const updatedRide = res.data.ride || res.data;
+        if (updatedRide) setRide(updatedRide);
+      })
+      .catch(err => console.error("Error updating status", err));
   };
 
   const startCoords = isValidCoord(ride?.location?.coordinates) ? ride.location.coordinates : null;
@@ -266,7 +279,7 @@ export default function RideActive() {
           <div className="flex gap-4 pt-2">
             <button
               className="flex-1 h-16 bg-[#2c2c2c]/80 backdrop-blur-md rounded-full flex items-center justify-center gap-3 border border-[#484847]/30 active:scale-95 duration-200 group"
-              onClick={() => setIsPaused(!isPaused)}
+              onClick={handlePauseToggle}
             >
               <span className="material-symbols-outlined text-white group-hover:text-[#ff8f75] transition-colors" style={{ fontVariationSettings: "'FILL' 1" }}>
                 {isPaused ? "play_circle" : "pause_circle"}
@@ -285,7 +298,7 @@ export default function RideActive() {
       </main>
 
       {/* BottomNavBar */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-[3rem] z-50 bg-[#2c2c2c]/60 backdrop-blur-xl shadow-[0px_24px_48px_rgba(255,143,117,0.08)]">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl rounded-[3rem] z-50 bg-[#2c2c2c]/60 backdrop-blur-xl shadow-[0px_24px_48px_rgba(255,143,117,0.08)]">
         <div className="flex justify-around items-center px-4 py-2">
           <button className="flex items-center justify-center text-neutral-400 p-4 hover:text-white transition-all active:scale-90 duration-200">
             <span className="material-symbols-outlined">chat_bubble</span>

@@ -132,7 +132,7 @@ export default function LiveCampaign() {
       </main>
 
       {/* BottomNavBar */}
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-[3rem] z-50 bg-[#2c2c2c]/60 backdrop-blur-xl shadow-[0px_24px_48px_rgba(255,143,117,0.08)]">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl rounded-[3rem] z-50 bg-[#2c2c2c]/60 backdrop-blur-xl shadow-[0px_24px_48px_rgba(255,143,117,0.08)]">
         <div className="flex justify-around items-center px-4 py-2">
           <button
             className="flex items-center justify-center text-neutral-400 p-4 hover:text-white transition-all active:scale-90 duration-200"

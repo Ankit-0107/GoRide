@@ -74,9 +74,9 @@ export default function CommunityChat() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ minHeight: "max(884px, 100dvh)" }}>
+    <div className="flex flex-col min-h-screen w-full max-w-4xl mx-auto relative" style={{ minHeight: "max(884px, 100dvh)" }}>
       {/* TopAppBar */}
-      <header className="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-[#0e0e0e]/60 backdrop-blur-xl z-50">
+      <header className="fixed top-0 w-full max-w-4xl left-1/2 -translate-x-1/2 flex justify-between items-center px-6 py-4 bg-[#0e0e0e]/60 backdrop-blur-xl z-50">
         <div className="flex items-center gap-4">
           <button
             className="hover:bg-[#2c2c2c] transition-colors p-2 rounded-full active:scale-95 duration-200"
@@ -189,7 +189,7 @@ export default function CommunityChat() {
       </main>
 
       {/* Chat Input Area (Fixed) */}
-      <div className="fixed left-0 w-full px-4 z-40 bottom-4">
+      <div className="fixed bottom-4 w-full max-w-4xl left-1/2 -translate-x-1/2 px-4 z-40">
         <form onSubmit={handleSend} className="bg-[#201f1f] rounded-full p-2 flex items-center gap-2 border border-[#484847]/30 shadow-2xl">
           <button type="button" className="w-10 h-10 flex items-center justify-center text-[#adaaaa] hover:text-white transition-colors">
             <span className="material-symbols-outlined">add</span>

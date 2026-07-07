@@ -25,7 +25,7 @@ const rideSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['scheduled', 'active', 'completed', 'cancelled'],
+    enum: ['scheduled', 'active', 'paused', 'ongoing', 'completed', 'cancelled'],
     default: 'active'
   },
   location: { // Renamed from currentLocation for Geospatial query requirement

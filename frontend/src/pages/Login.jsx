@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGoogleLogin } from '@react-oauth/google';
 import api from "../api/api";
 
 export default function Login() {
@@ -24,6 +25,7 @@ export default function Login() {
         localStorage.setItem("token", res.data.user.token);
         localStorage.setItem("userRole", res.data.user.role || "user");
         localStorage.setItem("userName", res.data.user.name || "");
+        localStorage.setItem("userUsername", res.data.user.username || "");
         localStorage.setItem("userEmail", res.data.user.email || "");
         localStorage.removeItem("guestUser");
         window.location.href = "/home";
@@ -34,6 +36,32 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setLoading(true);
+        setError("");
+        const res = await api.post("/auth/google", { token: tokenResponse.access_token });
+        if (res.data && res.data.user && res.data.user.token) {
+          localStorage.setItem("token", res.data.user.token);
+          localStorage.setItem("userRole", res.data.user.role || "user");
+          localStorage.setItem("userName", res.data.user.name || "");
+          localStorage.setItem("userUsername", res.data.user.username || "");
+          localStorage.setItem("userEmail", res.data.user.email || "");
+          localStorage.removeItem("guestUser");
+          window.location.href = "/home";
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || err.message || "Google login failed");
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      setError("Google Login failed");
+    }
+  });
 
   return (
     <div className="bg-[#0e0e0e] text-white font-body min-h-screen selection:bg-[#ff8f75] selection:text-[#5f0e00]" style={{ animation: 'authPageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
@@ -49,14 +77,6 @@ export default function Login() {
           }
         }
       `}</style>
-      {/* Top Navigation Anchor */}
-      <header className="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-transparent">
-        <div className="flex items-center gap-2">
-          {/* Suppressed back button for Login flow */}
-        </div>
-        <h1 className="text-2xl font-black tracking-tighter text-white uppercase font-headline">GoRIDE</h1>
-        <div className="w-6"></div>
-      </header>
 
       <main className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
         {/* Full Screen Background Image */}
@@ -64,26 +84,32 @@ export default function Login() {
           <img
             alt="cyclist riding city"
             className="w-full h-full object-cover"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDORtGFnREBRLzfMiMgkEMYynpdrI4kRmNeL3qrEARkCFx1dUOKmc1oVAh7NiYGp4-R73lVYkqk8CwW11GkyK0S_k0eStgAL2ooOFkMivamCgiBLt3XiiSQbeMIJkgR-iPE2_pD9NVd1HbxOUvnpVTjZ4vIqjP0PLBAje6gcRO8whQ9BJNG3mavRpHulte7m-gbxApA2tntp0q27EsjOle71KiqASYbMU5uWYud8QMvtNn7-mKHldkxdI8XzDS_BZtjyhCq6FyUqTI"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJfjpGUgBLcECriq5mdowsDlL3QoXnmmrMMNxOkWlHR49x8DdohIMIVYSY_bCCB0d4TrCBCL-UEBp1f6wVzc5QtR02xccAbWEBRcEYfojQtaEZI2iO5FG2Z8VmLWvCekcQX0vTt59e5YepCOH8ff3Csx3mtIWGoOYf0PibTGyGA75Db2q7Nerou57w07Y4tM8lR-NJmMHWBmWvVnaSbkg4I5LedUQYPuksgUl2J6NAbt3CNfENTHA3HfkUCE8qNpvuVWQCqtklSRI"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0e0e0e]/40 to-[#0e0e0e]/95"></div>
+          <div className="absolute inset-0 bg-[#0e0e0e]/80 backdrop-blur-[4px]"></div>
+          {/* Floating Orbs */}
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#ff8f75]/20 rounded-full blur-[80px] animate-float pointer-events-none"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#e6a7ff]/10 rounded-full blur-[80px] animate-float pointer-events-none" style={{ animationDelay: '2s' }}></div>
         </div>
 
         {/* Login Container */}
-        <div className="relative z-10 w-full max-w-md px-8 py-12 flex flex-col gap-8">
+        <div className="relative z-10 w-full max-w-md px-8 py-12 flex flex-col gap-8 glass-card rounded-[2rem] glow-border mt-8 shadow-2xl mx-4">
+          {/* GoRIDE Title */}
+          <h1 className="text-3xl font-black tracking-tighter uppercase font-headline gradient-text text-center mb-2">GoRIDE</h1>
           {/* Auth Toggle */}
           <div className="flex justify-center mb-4">
-            <div className="bg-[#2c2c2c]/40 backdrop-blur-xl p-1.5 rounded-full flex gap-1 border border-white/10">
+            <div className="bg-[#2c2c2c]/40 backdrop-blur-xl p-1.5 rounded-full flex gap-1 border border-white/10 relative">
+              <div className="absolute inset-y-1.5 left-1.5 w-[calc(50%-6px)] bg-gradient-brand rounded-full transition-transform duration-300 shadow-[0_0_15px_rgba(255,143,117,0.3)]"></div>
               <button 
                 type="button"
-                className="px-8 py-2.5 rounded-full text-sm font-bold tracking-widest bg-white text-black transition-all duration-300 ease-in-out uppercase font-headline shadow-lg"
+                className="relative z-10 px-8 py-2.5 rounded-full text-sm font-bold tracking-widest text-black transition-all duration-300 ease-in-out uppercase font-headline"
               >
                 LOG IN
               </button>
               <button 
                 type="button"
                 onClick={() => navigate('/register')}
-                className="px-8 py-2.5 rounded-full text-sm font-bold tracking-widest text-[#adaaaa] hover:text-white transition-all duration-300 ease-in-out uppercase font-headline"
+                className="relative z-10 px-8 py-2.5 rounded-full text-sm font-bold tracking-widest text-[#adaaaa] hover:text-white transition-all duration-300 ease-in-out uppercase font-headline"
               >
                 SIGN UP
               </button>
@@ -111,7 +137,7 @@ export default function Login() {
               </label>
               <div className="relative">
                 <input
-                  className="w-full bg-[#201f1f]/60 backdrop-blur-md border-none focus:ring-2 focus:ring-[#ff8f75] rounded-xl px-6 py-5 text-white placeholder:text-[#adaaaa]/50 transition-all outline-none"
+                  className="w-full bg-[#1a1a1a] border border-[#333] focus:ring-2 focus:ring-[#ff8f75] focus:bg-[#1a1a1a] rounded-xl px-6 py-5 text-white placeholder:text-[#adaaaa]/50 transition-all outline-none"
                   placeholder="example@goride.com"
                   type="email"
                   value={email}
@@ -127,7 +153,7 @@ export default function Login() {
               </label>
               <div className="relative">
                 <input
-                  className="w-full bg-[#201f1f]/60 backdrop-blur-md border-none focus:ring-2 focus:ring-[#ff8f75] rounded-xl px-6 py-5 text-white placeholder:text-[#adaaaa]/50 transition-all outline-none"
+                  className="w-full bg-[#1a1a1a] border border-[#333] focus:ring-2 focus:ring-[#ff8f75] focus:bg-[#1a1a1a] rounded-xl px-6 py-5 text-white placeholder:text-[#adaaaa]/50 transition-all outline-none"
                   placeholder="••••••••"
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -135,7 +161,7 @@ export default function Login() {
                   required
                 />
                 <button
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#adaaaa] hover:text-[#ff8f75] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#adaaaa] hover:text-[#ff8f75] transition-transform hover:rotate-12"
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                 >
@@ -148,7 +174,7 @@ export default function Login() {
 
             {/* Submit Button */}
             <button
-              className="w-full bg-[#e6a7ff] text-[#50086f] py-5 rounded-full font-black text-lg tracking-widest hover:brightness-110 active:scale-[0.98] transition-all uppercase font-headline mt-4 shadow-xl disabled:opacity-50"
+              className="w-full bg-gradient-brand text-black py-5 rounded-full font-black text-lg tracking-widest hover:brightness-110 active:scale-[0.98] transition-all uppercase font-headline mt-4 glow-shadow disabled:opacity-50"
               type="submit"
               disabled={loading}
             >
@@ -174,7 +200,8 @@ export default function Login() {
             <div className="flex justify-center gap-6">
               <button 
                 type="button"
-                className="w-14 h-14 rounded-full bg-[#2c2c2c]/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90"
+                onClick={() => loginWithGoogle()}
+                className="w-14 h-14 rounded-full glass-card flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90 hover-glow-shadow"
               >
                 <img
                   alt="Google"
@@ -184,7 +211,7 @@ export default function Login() {
               </button>
               <button 
                 type="button"
-                className="w-14 h-14 rounded-full bg-[#2c2c2c]/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90"
+                className="w-14 h-14 rounded-full glass-card flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90 hover-glow-shadow"
               >
                 <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   ios
@@ -192,7 +219,7 @@ export default function Login() {
               </button>
               <button 
                 type="button"
-                className="w-14 h-14 rounded-full bg-[#2c2c2c]/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90"
+                className="w-14 h-14 rounded-full glass-card flex items-center justify-center hover:bg-[#2c2c2c]/60 transition-all active:scale-90 hover-glow-shadow"
               >
                 <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   social_leaderboard

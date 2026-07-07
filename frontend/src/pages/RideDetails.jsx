@@ -200,17 +200,22 @@ export default function RideDetails() {
       : "4.8";
 
   return (
-    <div className="bg-[#131313] text-white min-h-screen pb-24 max-w-xl mx-auto font-body selection:bg-[#ff8f75]/30">
+    <div className="bg-[#0e0e0e] text-white min-h-screen font-body selection:bg-[#ff8f75]/30">
+    <div className="w-full max-w-7xl mx-auto pb-24 relative z-10">
+      {/* Floating Orbs */}
+      <div className="fixed top-1/3 right-0 w-96 h-96 bg-[#ff8f75]/10 rounded-full blur-[100px] pointer-events-none -z-10 animate-float"></div>
+      <div className="fixed bottom-1/4 left-0 w-96 h-96 bg-[#e6a7ff]/10 rounded-full blur-[100px] pointer-events-none -z-10 animate-float" style={{ animationDelay: '2s' }}></div>
+
       {/* HEADER */}
-      <header className="flex items-center justify-between px-6 py-5 sticky top-0 bg-[#131313] z-50">
-        <button onClick={() => navigate(-1)} className="active:scale-95 transition-transform">
-          <span className="material-symbols-outlined text-[#ff8f75] text-[22px]">arrow_back</span>
+      <header className="flex items-center justify-between px-6 py-5 sticky top-0 bg-[#0e0e0e]/80 backdrop-blur-xl z-50 border-b border-white/5">
+        <button onClick={() => navigate(-1)} className="active:scale-95 transition-transform w-10 h-10 flex items-center justify-center rounded-full glass-card border border-white/10 hover:bg-[#ff8f75]/20 hover:text-[#ff8f75]">
+          <span className="material-symbols-outlined text-white text-[22px] transition-colors">arrow_back</span>
         </button>
-        <h1 className="font-['Plus_Jakarta_Sans'] font-bold text-[#ff8f75] text-base tracking-wide">
+        <h1 className="font-headline font-black uppercase tracking-widest text-[#ff8f75]">
           Ride Details
         </h1>
-        <button className="active:scale-95 transition-transform">
-          <span className="material-symbols-outlined text-[#ff8f75] text-[20px]">share</span>
+        <button className="active:scale-95 transition-transform w-10 h-10 flex items-center justify-center rounded-full glass-card border border-white/10 hover:bg-[#ff8f75]/20 hover:text-[#ff8f75]">
+          <span className="material-symbols-outlined text-white text-[20px] transition-colors">share</span>
         </button>
       </header>
 
@@ -256,7 +261,7 @@ export default function RideDetails() {
         </div>
 
         {/* MAP PREVIEW — INTERACTIVE */}
-        <div className="w-full h-[220px] bg-[#1a1919] rounded-[24px] overflow-hidden relative shadow-lg">
+        <div className="w-full h-[220px] glass-card rounded-[24px] overflow-hidden relative shadow-lg glow-border">
           <Map
             ref={mapRef}
             {...viewState}
@@ -295,7 +300,7 @@ export default function RideDetails() {
         </div>
 
         {/* RIDE LEADER CARD */}
-        <div className="bg-[#1a1919] rounded-full p-2.5 pr-5 flex items-center justify-between border border-[#484847]/20 shadow-sm">
+        <div className="glass-card rounded-full p-2.5 pr-5 flex items-center justify-between border border-white/5 shadow-lg">
           <div className="flex items-center gap-3">
             <div className="relative">
               <img
@@ -340,8 +345,8 @@ export default function RideDetails() {
         {/* STATS GRID — 3 items: Distance, Duration, Difficulty */}
         <div className="grid grid-cols-2 gap-4">
           {/* Distance */}
-          <div className="bg-[#1a1919] p-5 rounded-[24px] border border-[#ff8f75]/[0.15] relative overflow-hidden">
-            <div className="absolute left-0 top-6 bottom-6 w-[2px] bg-[#ff8f75]/80 rounded-r-md"></div>
+          <div className="glass-card p-5 rounded-[24px] border border-white/5 relative overflow-hidden group hover-glow-shadow transition-all">
+            <div className="absolute left-0 top-6 bottom-6 w-[2px] bg-[#ff8f75]/80 rounded-r-md group-hover:bg-[#ff8f75] transition-colors"></div>
             <div className="flex items-center gap-2 mb-2">
               <span className="material-symbols-outlined text-[#ff8f75] text-[16px]">straighten</span>
               <span className="text-[9px] uppercase font-bold tracking-widest text-[#adaaaa]">Distance</span>
@@ -351,8 +356,8 @@ export default function RideDetails() {
             </p>
           </div>
           {/* Duration */}
-          <div className="bg-[#1a1919] p-5 rounded-[24px] border border-[#ff8f75]/[0.15] relative overflow-hidden">
-            <div className="absolute left-0 top-6 bottom-6 w-[2px] bg-[#ff8f75]/80 rounded-r-md"></div>
+          <div className="glass-card p-5 rounded-[24px] border border-white/5 relative overflow-hidden group hover-glow-shadow transition-all">
+            <div className="absolute left-0 top-6 bottom-6 w-[2px] bg-[#ff8f75]/80 rounded-r-md group-hover:bg-[#ff8f75] transition-colors"></div>
             <div className="flex items-center gap-2 mb-2">
               <span className="material-symbols-outlined text-[#ff8f75] text-[16px]">schedule</span>
               <span className="text-[9px] uppercase font-bold tracking-widest text-[#adaaaa]">Duration</span>
@@ -362,8 +367,8 @@ export default function RideDetails() {
             </p>
           </div>
           {/* Difficulty — spans full width */}
-          <div className="col-span-2 bg-[#1a1919] p-5 rounded-[24px] border border-[#484847]/30 relative overflow-hidden">
-            <div className="absolute left-0 top-6 bottom-6 w-[2px] bg-[#ff8f75]/30 rounded-r-md"></div>
+          <div className="col-span-2 glass-card p-5 rounded-[24px] border border-white/5 relative overflow-hidden group hover-glow-shadow transition-all">
+            <div className="absolute left-0 top-6 bottom-6 w-[2px] bg-[#e6a7ff]/60 rounded-r-md group-hover:bg-[#e6a7ff] transition-colors"></div>
             <div className="flex items-center gap-2 mb-2">
               <span className="material-symbols-outlined text-[#ff8f75] text-[16px]">speed</span>
               <span className="text-[9px] uppercase font-bold tracking-widest text-[#adaaaa]">Difficulty</span>
@@ -381,7 +386,7 @@ export default function RideDetails() {
             disabled={
               ride.waypoints?.length >= ride.maxPassengers || ride.status === "completed"
             }
-            className="w-full bg-[#ff8f75] text-black py-4 rounded-full font-headline font-black text-[17px] tracking-tight hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale shadow-[0px_8px_16px_rgba(255,143,117,0.15)]"
+            className="w-full bg-gradient-brand text-black py-4 rounded-full font-headline font-black text-[17px] tracking-widest uppercase hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale glow-shadow"
           >
             {ride.status === "completed"
               ? "Ride Completed"
@@ -401,7 +406,8 @@ export default function RideDetails() {
 
         {/* PARTNER OFFER */}
         <div className="mt-8 mb-4">
-          <div className="bg-gradient-to-br from-[#ff9b85] to-[#ff7859] rounded-[28px] p-6 text-black relative overflow-hidden">
+          <div className="bg-gradient-brand rounded-[28px] p-6 text-black relative overflow-hidden glow-shadow transform transition-transform hover:scale-[1.02]">
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/20 blur-3xl rounded-full"></div>
             <span className="inline-block px-2.5 py-1 bg-black/10 rounded-full text-[9px] font-black tracking-widest uppercase mb-3 text-black/70">
               Partner Offer
             </span>
@@ -417,6 +423,7 @@ export default function RideDetails() {
           </div>
         </div>
       </main>
+    </div>
     </div>
   );
 }

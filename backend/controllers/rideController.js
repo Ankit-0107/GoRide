@@ -318,6 +318,27 @@ const getRidesByCreator = async (req, res) => {
   }
 };
 
+/**
+ * Update ride status
+ */
+const updateStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!status) {
+      return res.status(400).json({ success: false, message: 'Status is required' });
+    }
+    const result = await rideService.updateStatus(id, status);
+    if (result.success) {
+      return res.status(200).json(result);
+    }
+    return res.status(400).json(result);
+  } catch (error) {
+    console.error('Update status controller error:', error);
+    return res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   createRide,
   scheduleRide,
@@ -330,5 +351,6 @@ module.exports = {
   completeRide,
   deleteRide,
   rateRide,
-  getRidesByCreator
+  getRidesByCreator,
+  updateStatus
 };

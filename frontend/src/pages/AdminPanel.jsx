@@ -199,7 +199,7 @@ export default function AdminPanel() {
       </div>
 
       {/* Content */}
-      <main className="pt-40 px-4 pb-12 max-w-2xl mx-auto">
+      <main className="w-full max-w-7xl mx-auto pt-40 px-4 pb-12">
 
         {/* Stats Tab */}
         {activeTab === "stats" && (

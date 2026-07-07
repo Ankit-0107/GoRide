@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
+import BottomNav from "../components/BottomNav";
 
 export default function Community() {
   const navigate = useNavigate();
@@ -52,42 +53,49 @@ export default function Community() {
   };
 
   return (
-    <div className="bg-surface-container-lowest min-h-screen pb-32">
+    <div className="bg-[#0e0e0e] text-white min-h-screen pb-32 overflow-x-hidden font-body selection:bg-[#ff8f75] selection:text-[#5f0e00]" style={{ animation: 'fadeIn 0.4s ease-out' }}>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
       {/* TopAppBar */}
-      <header className="w-full top-0 sticky z-40 no-border bg-[#0e0e0e] flex justify-between items-center px-6 py-4 max-w-xl mx-auto">
+      <header className="w-full top-0 sticky z-40 bg-[#0e0e0e]/80 backdrop-blur-xl border-b border-white/5 flex justify-end items-center px-6 py-4 max-w-7xl mx-auto">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-outline-variant/20">
-            <img
-              alt="User Profile"
-              className="w-full h-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6juMNLnGTDWs1-39RToOMNGMM1j0zHcNfQz0I1kKwCt5aTZxlGOw5txlsTpyHqIDzHhBGwKWXLtvySRlOY5XczL1ZS56YTQZcx2iswMMhxB6QCeu4GJMJAncX2oKyCcKJV7mf6pjg6YCX1yhSHuksAB27oL-JEHURIbEWulR0iElAAAJDvFMviI3Uxdy_3O0rd8izj66EGFNvKnqnm3yFwYeooH2D95tMgk8cRiJYzKt-fhuFi1CGvgKAPqcBsOSak0fjbo1G3m4"
-            />
-          </div>
-          <h1 className="font-['Plus_Jakarta_Sans'] font-bold text-2xl tracking-tight text-[#ff8f75]">
-            Hi, {userName}
-          </h1>
+          <button onClick={() => navigate("/notifications-page")} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#2c2c2c]/60 backdrop-blur-md hover:bg-[#ff8f75]/20 hover:text-[#ff8f75] transition-all active:scale-95 duration-200 border border-white/10 text-white">
+            <span className="material-symbols-outlined">notifications</span>
+          </button>
+          <button
+            onClick={() => navigate("/profile")}
+            className="w-10 h-10 rounded-full bg-[#2c2c2c]/60 flex items-center justify-center text-[#adaaaa] hover:text-white transition-colors active:scale-95 duration-200 border-2 border-[#ff8f75]/20 overflow-hidden"
+            title="Profile"
+          >
+            <span className="material-symbols-outlined text-xl">person</span>
+          </button>
         </div>
-        <button className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-[#1a1919] transition-colors active:scale-95 duration-200">
-          <span className="material-symbols-outlined text-[#adaaaa]">notifications</span>
-        </button>
       </header>
 
-      <main className="max-w-xl mx-auto px-6">
+      <main className="w-full max-w-7xl mx-auto px-6 relative z-10">
+        {/* Floating Orbs Background */}
+        <div className="fixed top-1/4 -right-1/4 w-96 h-96 bg-[#ff8f75]/10 rounded-full blur-[100px] pointer-events-none -z-10 animate-float"></div>
+        <div className="fixed bottom-1/4 -left-1/4 w-96 h-96 bg-[#e6a7ff]/10 rounded-full blur-[100px] pointer-events-none -z-10 animate-float" style={{ animationDelay: '2s' }}></div>
+
         {/* Large Headline Section */}
         <div className="mt-4 mb-8">
-          <h2 className="font-headline font-extrabold text-[40px] leading-[1.1] tracking-tight">
+          <h2 className="font-headline font-black text-[40px] leading-[1.1] tracking-tight uppercase">
             <span className="text-white block">Let's Stay</span>
-            <span className="text-[#fe5d39] block">Connected</span>
+            <span className="gradient-text block animate-pulse duration-1000">Connected</span>
           </h2>
         </div>
 
         {/* Search Bar Section */}
         <div className="relative w-full mb-8">
           <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <span className="material-symbols-outlined text-on-surface-variant text-xl">search</span>
+            <span className="material-symbols-outlined text-[#adaaaa] text-xl">search</span>
           </div>
-          <input
-            className="w-full bg-surface-container-highest border-none rounded-full py-4 pl-12 pr-6 text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary focus:bg-surface-bright transition-all"
+    <input
+            className="w-full bg-black text-white border border-[#333] rounded-full py-4 pl-12 pr-6 placeholder:text-[#adaaaa]/60 focus:ring-2 focus:ring-[#ff8f75] transition-all outline-none"
             placeholder="Search members or groups..."
             type="text"
           />
@@ -95,10 +103,10 @@ export default function Community() {
 
         {/* Recent Chats Label */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-headline font-bold text-xs uppercase tracking-[0.2em] text-on-surface-variant">
+          <h2 className="font-headline font-black text-xs uppercase tracking-[0.2em] text-[#adaaaa]">
             RECENT CHATS
           </h2>
-          <button className="text-primary text-xs font-semibold">Mark all read</button>
+          <button className="text-[#ff8f75] text-xs font-bold hover:brightness-110 transition-colors">Mark all read</button>
         </div>
 
         {/* Chat List */}
@@ -114,12 +122,12 @@ export default function Community() {
                 <div 
                   key={conv.id}
                   onClick={() => handleChatClick(conv)}
-                  className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors ${
-                    isUnread ? 'bg-surface-container/80' : 'bg-surface-container/40 hover:bg-surface-container-high'
+                  className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all duration-300 border border-white/5 hover:border-white/10 hover-glow-shadow ${
+                    isUnread ? 'glass-card border-[#ff8f75]/30 shadow-[0_0_15px_rgba(255,143,117,0.1)]' : 'bg-[#2c2c2c]/30 backdrop-blur-sm hover:bg-[#2c2c2c]/60'
                   }`}
                 >
                   <div className="shrink-0 relative">
-                    <div className="w-14 h-14 rounded-full flex items-center justify-center border border-outline-variant/20 overflow-hidden bg-surface-bright">
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center border border-white/10 overflow-hidden bg-[#2c2c2c]">
                       {/* Default placeholder profile photo */}
                       <img 
                         src={conv.type === 'community' 
@@ -136,16 +144,16 @@ export default function Community() {
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-1">
-                      <h3 className={`font-headline font-bold truncate ${isUnread ? "text-on-surface" : "text-on-surface-variant"}`}>
+                      <h3 className={`font-headline font-bold truncate ${isUnread ? "text-white group-hover:text-[#ff8f75]" : "text-[#adaaaa] group-hover:text-white"}`}>
                         {conv.title}
                       </h3>
-                      <span className={`text-[10px] font-medium ${isUnread ? "text-primary" : "text-on-surface-variant"}`}>
+                      <span className={`text-[10px] font-medium ${isUnread ? "text-[#ff8f75]" : "text-[#adaaaa]/60"}`}>
                         {formatDate(conv.timestamp)}
                       </span>
                     </div>
                     
-                    <p className={`text-sm truncate mb-2 ${isUnread ? "text-on-surface-variant font-medium" : "text-on-surface-variant/80"}`}>
-                      {conv.senderName && conv.type !== 'user' ? <span className="font-medium text-on-surface">{conv.senderName}: </span> : null}
+                    <p className={`text-sm truncate mb-2 ${isUnread ? "text-[#adaaaa] font-medium" : "text-[#adaaaa]/60"}`}>
+                      {conv.senderName && conv.type !== 'user' ? <span className="font-medium text-white">{conv.senderName}: </span> : null}
                       {conv.lastMessage}
                     </p>
                   </div>
@@ -158,44 +166,16 @@ export default function Community() {
 
       {/* FAB */}
       <button 
-        className="fixed right-6 bottom-32 w-14 h-14 bg-gradient-to-br from-[#ff8f75] to-[#ff7859] rounded-full flex items-center justify-center shadow-[0px_24px_48px_rgba(255,143,117,0.2)] text-black z-40 active:scale-90 duration-300"
+        className="fixed right-6 bottom-32 w-14 h-14 bg-gradient-brand rounded-full flex items-center justify-center glow-shadow text-black z-40 hover:scale-105 active:scale-95 transition-all duration-300"
         onClick={() => navigate("/create-community")}
       >
-        <span className="material-symbols-outlined font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>
+        <span className="material-symbols-outlined font-black text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
           add
         </span>
       </button>
 
       {/* BottomNavBar */}
-      <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#2c2c2c]/60 backdrop-blur-xl rounded-t-[3rem] z-50 shadow-[0px_-24px_48px_rgba(255,143,117,0.08)]">
-        <div
-          className="flex flex-col items-center justify-center text-[#adaaaa] px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 cursor-pointer"
-          onClick={() => navigate("/home")}
-        >
-          <span className="material-symbols-outlined">home</span>
-          <span className="font-['Inter'] text-[10px] font-medium uppercase tracking-widest">Home</span>
-        </div>
-        <div
-          className="flex flex-col items-center justify-center text-[#adaaaa] px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 cursor-pointer"
-          onClick={() => navigate("/campaign")}
-        >
-          <span className="material-symbols-outlined">explore</span>
-          <span className="font-['Inter'] text-[10px] font-medium uppercase tracking-widest">Campaign</span>
-        </div>
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-[#ff8f75] to-[#ff7859] text-black rounded-full px-5 py-2 active:scale-90 duration-150">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
-            group
-          </span>
-          <span className="font-['Inter'] text-[10px] font-medium uppercase tracking-widest">Community</span>
-        </div>
-        <div
-          className="flex flex-col items-center justify-center text-[#adaaaa] px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 cursor-pointer"
-          onClick={() => navigate("/profile")}
-        >
-          <span className="material-symbols-outlined">settings</span>
-          <span className="font-['Inter'] text-[10px] font-medium uppercase tracking-widest">Settings</span>
-        </div>
-      </nav>
+      <BottomNav active="messages" />
     </div>
   );
 }

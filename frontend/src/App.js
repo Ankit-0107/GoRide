@@ -18,6 +18,12 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CreateCommunity from "./pages/CreateCommunity";
 import AdminPanel from "./pages/AdminPanel";
+import UserProfile from "./pages/UserProfile";
+import NotificationsPage from "./pages/NotificationsPage";
+import FollowRequests from "./pages/FollowRequests";
+import FollowersList from "./pages/FollowersList";
+import FollowingList from "./pages/FollowingList";
+import ComingSoon from "./pages/ComingSoon";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -48,6 +54,12 @@ function App() {
         <Route path="/create-ride" element={token ? <CreateRide /> : <Navigate to="/login" />} />
         <Route path="/chat/:id" element={token ? <Chat /> : <Navigate to="/login" />} />
         <Route path="/admin" element={token ? <AdminPanel /> : <Navigate to="/login" />} />
+        <Route path="/user/:id" element={token ? <UserProfile /> : <Navigate to="/login" />} />
+        <Route path="/notifications-page" element={token ? <NotificationsPage /> : <Navigate to="/login" />} />
+        <Route path="/follow-requests" element={token ? <FollowRequests /> : <Navigate to="/login" />} />
+        <Route path="/followers/:id" element={token ? <FollowersList /> : <Navigate to="/login" />} />
+        <Route path="/following/:id" element={token ? <FollowingList /> : <Navigate to="/login" />} />
+        <Route path="/coming-soon" element={token ? <ComingSoon /> : <Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   );

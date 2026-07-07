@@ -10,6 +10,8 @@ const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const mapboxRoutes = require('./routes/mapboxRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const setupSocketHandlers = require('./sockets/rideSocket');
 
 // Initialize Express app
@@ -57,6 +59,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/mapbox', mapboxRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Setup Socket.io handlers
 setupSocketHandlers(io);

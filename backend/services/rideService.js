@@ -77,7 +77,7 @@ class RideService {
    */
   async getScheduledRides() {
     try {
-      const rides = await Ride.find({ status: 'scheduled' });
+      const rides = await Ride.find({ status: { $in: ['scheduled', 'active', 'paused'] } });
 
       return {
         success: true,
@@ -493,6 +493,26 @@ class RideService {
         message: 'Failed to fetch rides',
         error: error.message
       };
+    }
+  }
+
+  /**
+   * Update the status of a ride
+   */
+  async updateStatus(rideId, status) {
+    try {
+      const ride = await Ride.findByIdAndUpdate(
+        rideId,
+        { status },
+        { new: true }
+      );
+      if (!ride) {
+        return { success: false, message: 'Ride not found' };
+      }
+      return { success: true, ride };
+    } catch (error) {
+      console.error('Update status error:', error);
+      return { success: false, message: 'Failed to update status', error: error.message };
     }
   }
 }

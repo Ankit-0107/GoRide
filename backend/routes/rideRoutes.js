@@ -43,4 +43,7 @@ router.put('/:rideId/location', rideController.updateLocation);
 // Complete a ride
 router.put('/:id/complete', rideController.completeRide);
 
+// Update status
+router.put('/:id/status', rideController.updateStatus);
+
 module.exports = router;

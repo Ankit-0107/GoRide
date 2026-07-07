@@ -2,15 +2,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
+import BottomNav from "../components/BottomNav";
 
 export default function Home() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [scheduledRides, setScheduledRides] = useState([]);
   const [nearbyCampaigns, setNearbyCampaigns] = useState([]);
-  const [recommendedOpen, setRecommendedOpen] = useState(true);
-  const [scheduledPage, setScheduledPage] = useState(0);
-  const RIDES_PER_PAGE = 4;
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     // Fetch user profile (skip for guest users)
@@ -41,6 +46,15 @@ export default function Home() {
           .catch((err) => console.error("Error fetching nearby campaigns:", err));
       }
     );
+
+    // Fetch unread notifications
+    if (!isGuest) {
+      api.get("/notifications").then(res => {
+        if (res.data.success) {
+          setUnreadNotifications(res.data.notifications.filter(n => !n.read).length);
+        }
+      }).catch(err => console.error("Error fetching notifications:", err));
+    }
   }, []);
 
   const formatDate = (dateStr) => {
@@ -59,24 +73,15 @@ export default function Home() {
   ];
 
   return (
-    <div className="bg-black text-white font-body min-h-screen pb-32" style={{ minHeight: "max(884px, 100dvh)" }}>
+    <div className="bg-[#0e0e0e] text-white font-body min-h-screen pb-32 overflow-x-hidden" style={{ minHeight: "max(884px, 100dvh)" }}>
       {/* TopAppBar */}
       <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl border-none bg-[#0e0e0e]/80 flex justify-between items-center px-6 h-20">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#ff8f75]/20">
-            <img
-              alt="User Profile"
-              className="w-full h-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6juMNLnGTDWs1-39RToOMNGMM1j0zHcNfQz0I1kKwCt5aTZxlGOw5txlsTpyHqIDzHhBGwKWXLtvySRlOY5XczL1ZS56YTQZcx2iswMMhxB6QCeu4GJMJAncX2oKyCcKJV7mf6pjg6YCX1yhSHuksAB27oL-JEHURIbEWulR0iElAAAJDvFMviI3Uxdy_3O0rd8izj66EGFNvKnqnm3yFwYeooH2D95tMgk8cRiJYzKt-fhuFi1CGvgKAPqcBsOSak0fjbo1G3m4"
-            />
-          </div>
-          <h1 className="font-['Plus_Jakarta_Sans'] font-bold text-2xl tracking-tight text-[#ff8f75]">
-            Hi, {userName}
-          </h1>
+        <div className="flex items-center">
+          <h1 className="font-headline font-extrabold text-2xl tracking-tighter gradient-text animate-pulse duration-1000">GoRIDE</h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {localStorage.getItem("userRole") === "admin" && (
-            <button 
+            <button
               onClick={() => navigate("/admin")}
               className="w-10 h-10 rounded-full bg-[#201f1f] flex items-center justify-center text-[#e6a7ff] hover:opacity-70 transition-opacity active:scale-95 duration-300"
               title="Admin Panel"
@@ -84,93 +89,38 @@ export default function Home() {
               <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>shield_person</span>
             </button>
           )}
-          <button className="w-10 h-10 rounded-full bg-[#201f1f] flex items-center justify-center text-[#ff7859] hover:opacity-70 transition-opacity active:scale-95 duration-300">
+          <button onClick={() => navigate("/notifications-page")} className="relative w-10 h-10 rounded-full bg-[#201f1f] flex items-center justify-center text-[#ff7859] hover:opacity-70 transition-opacity active:scale-95 duration-300">
             <span className="material-symbols-outlined text-2xl">notifications</span>
+            {unreadNotifications > 0 && (
+              <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-[#0e0e0e]"></span>
+            )}
+          </button>
+          <button
+            onClick={() => navigate("/profile")}
+            className="w-10 h-10 rounded-full bg-[#201f1f] flex items-center justify-center text-[#adaaaa] hover:text-white transition-colors active:scale-95 duration-300 border-2 border-[#ff8f75]/20 overflow-hidden"
+            title="Profile"
+          >
+            <span className="material-symbols-outlined text-xl">person</span>
           </button>
         </div>
       </header>
 
-      <main className="max-w-xl mx-auto px-6 space-y-8 pt-24">
-        {/* Category Filter */}
-        <section className="flex gap-3 overflow-x-auto -mx-6 px-6" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-          <button className="px-6 py-2 rounded-full bg-gradient-to-br from-[#ff8f75] to-[#ff7859] text-black font-semibold text-sm whitespace-nowrap">All</button>
-          <button className="px-6 py-2 rounded-full bg-[#262626] text-[#adaaaa] font-medium text-sm whitespace-nowrap transition-all hover:bg-[#2c2c2c]">Nearby</button>
-          <button className="px-6 py-2 rounded-full bg-[#262626] text-[#adaaaa] font-medium text-sm whitespace-nowrap transition-all hover:bg-[#2c2c2c]">Trending</button>
-          <button className="px-6 py-2 rounded-full bg-[#262626] text-[#adaaaa] font-medium text-sm whitespace-nowrap transition-all hover:bg-[#2c2c2c]">Local</button>
-        </section>
+      <main className="w-full max-w-7xl mx-auto px-6 space-y-8 pt-24">
 
-        {/* Recommended For You: Bento Style — DROPDOWN */}
-        <section>
-          <button
-            className="w-full flex items-center justify-between mb-4"
-            onClick={() => setRecommendedOpen(!recommendedOpen)}
-          >
-            <h2 className="font-headline font-bold text-xl text-white tracking-tight">Recommended For You</h2>
-            <span
-              className={`material-symbols-outlined text-[#adaaaa] transition-transform duration-300 ${recommendedOpen ? "rotate-180" : ""}`}
-            >
-              expand_more
-            </span>
-          </button>
 
-          <div className={`overflow-hidden transition-all duration-400 ease-in-out ${recommendedOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"}`}>
-            <div className="bg-[#201f1f] rounded-[28px] overflow-hidden flex min-h-[180px] group transition-transform hover:scale-[1.01]">
-              <div className="flex-1 p-6 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-headline font-extrabold text-2xl leading-tight mb-2">Sunrise Ride</h3>
-                  <div className="flex items-center gap-4 text-[#adaaaa] text-sm font-medium">
-                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-xs">route</span> 12.4km</span>
-                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-xs">timer</span> 45 min</span>
-                  </div>
-                </div>
-                <div className="flex items-center mt-4">
-                  <div className="flex -space-x-2">
-                    <div className="w-6 h-6 rounded-full border border-[#201f1f] bg-[#262626] overflow-hidden">
-                      <img className="w-full h-full object-cover" alt="cyclist" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL5RRiEaHz8Yy_l0exXpebEINIJNpgEoXSw3TeiGHKimwTOC9CX33UKcMN6vgB0rVGG0_jy-tgmkOf_gMFHodXInvTHJpL_pBX40W8K0XUV-xB05Ufkf6vFfEnWIQ_81dCXoOhhRlmOO8x1CynZTRP30UY4KEyQQmjL2ds0-Z8gQpTwlyW64Dy3dCXrwIcx78RMSVKxYTLw5BuBrIuKeqF34wOQKrD9J4PmWrfrGoEgNFNhJT2oz0wpFLLWPNI4ovOBOvvGTi2GGE" />
-                    </div>
-                    <div className="w-6 h-6 rounded-full border border-[#201f1f] bg-[#262626] overflow-hidden">
-                      <img className="w-full h-full object-cover" alt="cyclist" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzbrIc5HxZDBrX2KqVN5N_oKjnVYIwKuWDlBHUSmZlBvbs5vLWow30Df00U2AmXqCmfpKzbpWVJJ_396I2EorCN4IZHQxGdl-RFe-kgx-hKdQSgfCFP88RMle_4gyf27iF60zOEHDMefdjoEXsRPIpYDLDdgEu7x6Dg4XOl2nOkHnqLmWbF0UpUVldFGxFP9LlIEY0bqzvgmPzUe4gKrXDG76LFl64GZVvP7KdHaSuXijEJlX0sdIbjV_5_-GHAaz6O_GwGwwCveo" />
-                    </div>
-                    <div className="w-6 h-6 rounded-full border border-[#201f1f] bg-[#262626] flex items-center justify-center text-[8px] font-bold">+12</div>
-                  </div>
-                  <button className="ml-auto bg-[#ff8f75] hover:bg-[#ff7859] text-black font-extrabold text-xs px-5 py-2.5 rounded-full transition-all active:scale-95">Join Ride</button>
-                </div>
-              </div>
-              <div className="w-1/3 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#201f1f] to-transparent z-10"></div>
-                <img className="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-700" alt="sunrise ride" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjlRlUqKSmr2_HehsOA3gg-ShRFJCtb7m_K8m_cCYZRAr3Tkvs4ghgNKEc9fy_BudDFK4N-Zy5HcXGTfGr4WG_T2VHZI8bnG3TBi6GhItx-jGaBLlcEHIQ578-T6AztvVXS2yJmMYHURDHyqcBvtlvw4ttJf4IMMrFyDkQLEIWKKFK54KvTUQz0mBrvGAY52KQkYyFmSUCRmsu-Jz7FpnTJXAlZSWiFJXe4tXz5irODV3JnBH54fjV4WowjkZ66HriNojOspHdji4" />
-              </div>
-            </div>
-          </div>
-        </section>
+
 
         {/* Scheduled Rides — FROM DATABASE */}
         <section>
           <div className="flex justify-between items-end mb-4">
             <h2 className="font-headline font-bold text-xl text-white tracking-tight">Scheduled Rides</h2>
             <div className="flex items-center gap-3">
-              {scheduledPage > 0 && (
-                <button 
-                  className="w-8 h-8 rounded-full bg-[#1a1919] flex items-center justify-center hover:bg-[#252424] transition-colors border border-[#484847]/20"
-                  onClick={() => setScheduledPage(p => p - 1)}
-                >
-                  <span className="material-symbols-outlined text-[#adaaaa] text-sm ml-1">arrow_back_ios</span>
-                </button>
-              )}
-              {(scheduledPage + 1) * RIDES_PER_PAGE < scheduledRides.length && (
-                <button 
-                  className="w-8 h-8 rounded-full bg-[#1a1919] flex items-center justify-center hover:bg-[#252424] transition-colors border border-[#484847]/20"
-                  onClick={() => setScheduledPage(p => p + 1)}
-                >
-                  <span className="material-symbols-outlined text-[#adaaaa] text-sm">arrow_forward_ios</span>
-                </button>
-              )}
-              <span className="text-[#ff8f75] text-sm font-semibold cursor-pointer ml-2" onClick={() => navigate("/active")}>View All</span>
+              <span className="text-[#ff8f75] text-sm font-semibold cursor-pointer ml-2" onClick={() => navigate("/campaign")}>View All</span>
             </div>
           </div>
           {scheduledRides.length === 0 ? (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-[#1a1919] rounded-[28px] p-5 flex flex-col justify-between min-h-[140px] border border-[#484847]/10">
+            <div className="grid grid-cols-1 gap-4">
+              <div className="glass-card rounded-[28px] p-5 flex flex-col justify-between min-h-[140px]">
                 <div>
                   <div className="text-[#adaaaa]/40 text-[10px] font-bold uppercase tracking-widest mb-1">No Rides</div>
                   <h3 className="font-headline font-bold text-base leading-snug text-[#adaaaa]">No scheduled rides yet</h3>
@@ -181,27 +131,124 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
-              {scheduledRides.slice(scheduledPage * RIDES_PER_PAGE, (scheduledPage + 1) * RIDES_PER_PAGE).map((ride, idx) => {
-                const globalIndex = scheduledPage * RIDES_PER_PAGE + idx;
-                const { date, time } = formatDate(ride.scheduledStartTime);
+            <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4 -mx-6 px-6" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              {scheduledRides.map((ride, idx) => {
+                // Helper: generate a 3-letter code from a string
+                const toCode = (str) => {
+                  if (!str) return "---";
+                  const words = str.trim().split(/\s+/);
+                  if (words.length >= 2) return (words[0][0] + words[1][0] + (words[1][1] || words[0][1] || "X")).toUpperCase();
+                  return str.substring(0, 3).toUpperCase();
+                };
+
+                const rideName = ride.title || ride.rideName || "Sunrise Ride";
+                const startCode = toCode(rideName);
+                const endCode = ride.destination ? "JAI" : "DST";
+                const startName = rideName;
+                const endName = ride.destination ? "Jaipur" : "Destination";
+                const participants = ride.waypoints?.length || 0;
+                const maxP = ride.maxPassengers || 10;
+                const progress = Math.min(Math.max((participants / maxP) * 100, 10), 100);
+
+                const statusStr = ride.status || "Scheduled";
+                const isOngoing = statusStr.toLowerCase() === "ongoing" || statusStr.toLowerCase() === "active";
+                const isPaused = statusStr.toLowerCase() === "paused";
+
+                const startTimeDate = ride.scheduledStartTime ? new Date(ride.scheduledStartTime) : new Date();
+                const departureTime = startTimeDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+                
+                const etaDate = new Date(startTimeDate.getTime() + 2 * 60 * 60 * 1000);
+                const etaTime = etaDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
+                let timeLeftString = "0m";
+                let timeColor = "text-[#ff8f75]";
+
+                if (isOngoing) {
+                  timeColor = "text-green-500";
+                  const diffMs = etaDate.getTime() - currentTime.getTime();
+                  if (diffMs > 0) {
+                    const hrs = Math.floor(diffMs / (1000 * 60 * 60));
+                    const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    timeLeftString = hrs > 0 ? `${hrs}h ${mins}m to destination` : `${mins}m to destination`;
+                  } else {
+                    timeLeftString = "Arriving soon";
+                  }
+                } else if (isPaused) {
+                  timeColor = "text-[#ffd60a]"; // transit-yellow
+                  timeLeftString = "Ride Paused";
+                } else {
+                  const diffMs = startTimeDate.getTime() - currentTime.getTime();
+                  if (diffMs > 0) {
+                    const hrs = Math.floor(diffMs / (1000 * 60 * 60));
+                    const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    timeLeftString = hrs > 0 ? `Starts in ${hrs}h ${mins}m` : `Starts in ${mins}m`;
+                  } else {
+                    timeLeftString = "Starting soon";
+                  }
+                }
+
+                const rideId = ride._id;
+
                 return (
-                  <div
-                    key={ride._id}
-                    className="bg-[#1a1919] rounded-[28px] p-5 flex flex-col justify-between min-h-[140px] border border-[#484847]/10 cursor-pointer hover:bg-[#201f1f] transition-colors active:scale-[0.98]"
-                    onClick={() => navigate(`/ride/${ride._id}`)}
+                  <article
+                    key={rideId || idx}
+                    aria-label={`Trip card from ${startName} to ${endName}`}
+                    onClick={() => rideId && navigate(`/ride/${rideId}`)}
+                    className="flex-shrink-0 w-[85vw] max-w-[400px] snap-center relative rounded-[2rem] overflow-hidden bg-[#0a0a0a] shadow-[0px_4px_24px_rgba(0,0,0,0.6)] border border-[#2a2a2a] cursor-pointer group p-6"
                   >
-                    <div>
-                      <div className={`${globalIndex === 0 ? "text-[#f5777c]" : "text-[#adaaaa]/40"} text-[10px] font-bold uppercase tracking-widest mb-1 truncate`}>
-                        {ride.status === "scheduled" ? (globalIndex === 0 ? "Upcoming" : "Scheduled") : ride.status}
+                    {/* Card Header */}
+                    <div className="flex justify-between items-center mb-5">
+                      <div className="flex items-center gap-2 font-semibold text-white">
+                        <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>pedal_bike</span>
                       </div>
-                      <h3 className="font-headline font-bold text-base leading-snug line-clamp-2">{ride.title || ride.rideName}</h3>
+                      <div className={`${timeColor} text-[13px] font-medium tracking-tight`}>
+                        {timeLeftString}
+                      </div>
                     </div>
-                    <div className="text-[#adaaaa] text-xs space-y-0.5 font-medium mt-2">
-                      <div className="flex items-center gap-1"><span className="material-symbols-outlined text-xs">calendar_today</span> {date}</div>
-                      <div className="flex items-center gap-1"><span className="material-symbols-outlined text-xs">schedule</span> {time}</div>
+
+                    {/* Route Details */}
+                    <div className="flex justify-between items-start mb-5">
+                      {/* Departure */}
+                      <div className="flex flex-col">
+                        <span className="text-[#8e8e93] text-[11px] uppercase tracking-wider mb-0.5">START</span>
+                        <h2 className="text-4xl font-bold tracking-tight text-white">{startCode}</h2>
+                        <span className="text-[#ff8f75] text-sm mt-1 font-medium">{departureTime}</span>
+                      </div>
+
+                      {/* Progress Indicator */}
+                      <div className="flex-1 mx-4 mt-7 flex flex-col items-center">
+                        <div className="w-full h-[6px] bg-[#2c2c2c] rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-brand rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }}></div>
+                        </div>
+                        <span className="text-[#8e8e93] text-[10px] mt-2 tracking-wide uppercase">{statusStr}</span>
+                      </div>
+
+                      {/* Arrival */}
+                      <div className="flex flex-col text-right">
+                        <span className="text-[#8e8e93] text-[11px] uppercase tracking-wider mb-0.5">DESTINATION</span>
+                        <h2 className="text-4xl font-bold tracking-tight text-white">{endCode}</h2>
+                        <span className="text-[#ff8f75] text-sm mt-1 font-medium">{etaTime}</span>
+                      </div>
                     </div>
-                  </div>
+
+                    {/* Card Footer */}
+                    <div className="flex justify-between items-end">
+                      {/* Passengers Badge */}
+                      <div className="bg-[#ff8f75]/10 text-[#ff8f75] px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-[#ff8f75]/20">
+                        <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>group</span>
+                        <span className="text-sm font-semibold">{participants}</span>
+                      </div>
+                      {/* Join Button */}
+                      <button
+                        type="button"
+                        aria-label="Join now"
+                        onClick={(e) => { e.stopPropagation(); rideId && navigate(`/ride/${rideId}`); }}
+                        className="h-[36px] px-5 flex items-center justify-center rounded-full bg-gradient-brand text-black font-bold text-[13px] tracking-wide uppercase active:scale-95 transition-transform glow-shadow"
+                      >
+                        JOIN NOW
+                      </button>
+                    </div>
+                  </article>
                 );
               })}
             </div>
@@ -232,10 +279,11 @@ export default function Home() {
                 return (
                   <div
                     key={campaign._id}
-                    className="flex-shrink-0 min-w-[280px] flex items-center justify-between p-4 bg-[#1a1919] rounded-2xl group hover:bg-[#2c2c2c] transition-colors snap-start cursor-pointer active:scale-[0.98]"
+                    className="flex-shrink-0 min-w-[280px] flex items-center justify-between p-4 glass-card rounded-2xl group hover:bg-[#2c2c2c] transition-all snap-start cursor-pointer active:scale-[0.98] hover-glow-shadow relative overflow-hidden"
                     onClick={() => navigate(`/ride/${campaign._id}`)}
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-brand opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="flex items-center gap-4 relative z-10">
                       <div className={`w-12 h-12 rounded-xl ${color.bg} flex items-center justify-center`}>
                         <span className={`material-symbols-outlined ${color.text}`} style={{ fontVariationSettings: "'FILL' 1" }}>thumb_up</span>
                       </div>
@@ -246,7 +294,7 @@ export default function Home() {
                         </p>
                       </div>
                     </div>
-                    <button className="w-8 h-8 rounded-full bg-[#262626] flex items-center justify-center text-[#ff8f75] hover:bg-[#ff8f75] hover:text-black transition-all flex-shrink-0">
+                    <button className="w-8 h-8 rounded-full bg-[#262626] flex items-center justify-center text-[#ff8f75] hover:bg-gradient-brand hover:text-black hover:glow-shadow transition-all flex-shrink-0 z-10 hover:scale-110 active:scale-95">
                       <span className="material-symbols-outlined">add</span>
                     </button>
                   </div>
@@ -261,27 +309,29 @@ export default function Home() {
           <h2 className="font-headline font-bold text-xl mb-4 text-white tracking-tight">Partner Offers</h2>
           <div className="flex gap-4 overflow-x-auto -mx-6 px-6" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             {/* Offer 1 */}
-            <div className="min-w-[280px] bg-[#1a1919] rounded-[28px] overflow-hidden border border-[#484847]/10">
-              <div className="h-32 bg-[#262626] relative">
-                <img className="w-full h-full object-cover opacity-60" alt="coffee shop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCV5RDOEtOdWumcxWVgnbLXg7jcSMSTgiUdH3U1uU0jaGQYmIUujcTguewKtGscl7iWFX9bIjp9kezvH5v45SX5a-Gk3PfJQlAdZvyW3qdtUv1WtXCgJ-ACXAw76ivhUV8bSA14thr3uxFE31h90CCr0zBqxzVW_EBTkEu4bb--sZjAD1CrmaE1Rz7t8O0CJT_ksmxZGhm1BpUxkTEUARKp8pfFpWk9ytf47_LTTYgn7KRewYSEEQQSBSxG6IodqGlgmNRpzn0ydnc" />
-                <div className="absolute bottom-3 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-[#ff8f75] tracking-tighter uppercase">Cafe Partner</div>
+            <div className="min-w-[280px] glass-card rounded-[28px] overflow-hidden group hover-glow-shadow transition-all relative">
+              <div className="h-32 bg-[#262626] relative overflow-hidden">
+                <img className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-500" alt="coffee shop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCV5RDOEtOdWumcxWVgnbLXg7jcSMSTgiUdH3U1uU0jaGQYmIUujcTguewKtGscl7iWFX9bIjp9kezvH5v45SX5a-Gk3PfJQlAdZvyW3qdtUv1WtXCgJ-ACXAw76ivhUV8bSA14thr3uxFE31h90CCr0zBqxzVW_EBTkEu4bb--sZjAD1CrmaE1Rz7t8O0CJT_ksmxZGhm1BpUxkTEUARKp8pfFpWk9ytf47_LTTYgn7KRewYSEEQQSBSxG6IodqGlgmNRpzn0ydnc" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-transparent to-transparent"></div>
+                <div className="absolute bottom-3 left-4 bg-gradient-brand px-3 py-1 rounded-full text-[10px] font-bold text-black tracking-tighter uppercase shadow-lg">Cafe Partner</div>
               </div>
-              <div className="p-5">
-                <h4 className="font-headline font-bold text-lg leading-tight mb-2">Daily Grind Cafe</h4>
+              <div className="p-5 relative z-10">
+                <h4 className="font-headline font-bold text-lg leading-tight mb-2 group-hover:gradient-text transition-all">Daily Grind Cafe</h4>
                 <p className="text-[#adaaaa] text-sm mb-4 line-clamp-2">10% off your post-ride brew this week</p>
-                <button className="w-full py-2.5 bg-[#262626] text-[#ff8f75] font-extrabold text-xs rounded-full tracking-widest hover:bg-[#ff8f75] hover:text-black transition-all">REDEEM</button>
+                <button className="w-full py-2.5 glass-card text-white font-extrabold text-xs rounded-full tracking-widest hover:bg-gradient-brand hover:text-black transition-all hover-glow-shadow border border-white/10">REDEEM</button>
               </div>
             </div>
             {/* Offer 2 */}
-            <div className="min-w-[280px] bg-[#1a1919] rounded-[28px] overflow-hidden border border-[#484847]/10">
-              <div className="h-32 bg-[#262626] relative">
-                <img className="w-full h-full object-cover opacity-60" alt="gym" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAqEH_yZ_mMnjeRmLmoE_9D2SwZ5wCYjz49IHHqg5PoKjv-il4kPRNMCH4UNyulqYzHi19ZbNV_RCK-3fiHXz3oYFt4Q0uyvMHazEwyQlNq2tYwIRBsgWnhMdXniN94kqb_N1lOgv1X0h5lFQ6ECiJ3dxJdbmnTxqFXByqN3OSRqBWL1KDPPwrwyoZ24RFM6cQWaoUoKWX00dAY8NvT8Lk-6g3g3wz5X7QOIdFSMzdYFkMw2aLLM7m3nf1o0VXqdqOKdDt0qAVEsc" />
-                <div className="absolute bottom-3 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-[#ff8f75] tracking-tighter uppercase">Gym Partner</div>
+            <div className="min-w-[280px] glass-card rounded-[28px] overflow-hidden group hover-glow-shadow transition-all relative">
+              <div className="h-32 bg-[#262626] relative overflow-hidden">
+                <img className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-500" alt="gym" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAqEH_yZ_mMnjeRmLmoE_9D2SwZ5wCYjz49IHHqg5PoKjv-il4kPRNMCH4UNyulqYzHi19ZbNV_RCK-3fiHXz3oYFt4Q0uyvMHazEwyQlNq2tYwIRBsgWnhMdXniN94kqb_N1lOgv1X0h5lFQ6ECiJ3dxJdbmnTxqFXByqN3OSRqBWL1KDPPwrwyoZ24RFM6cQWaoUoKWX00dAY8NvT8Lk-6g3g3wz5X7QOIdFSMzdYFkMw2aLLM7m3nf1o0VXqdqOKdDt0qAVEsc" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-transparent to-transparent"></div>
+                <div className="absolute bottom-3 left-4 bg-gradient-brand px-3 py-1 rounded-full text-[10px] font-bold text-black tracking-tighter uppercase shadow-lg">Gym Partner</div>
               </div>
-              <div className="p-5">
-                <h4 className="font-headline font-bold text-lg leading-tight mb-2">Iron Peak Gym</h4>
+              <div className="p-5 relative z-10">
+                <h4 className="font-headline font-bold text-lg leading-tight mb-2 group-hover:gradient-text transition-all">Iron Peak Gym</h4>
                 <p className="text-[#adaaaa] text-sm mb-4 line-clamp-2">Free recovery session for club members</p>
-                <button className="w-full py-2.5 bg-[#262626] text-[#ff8f75] font-extrabold text-xs rounded-full tracking-widest hover:bg-[#ff8f75] hover:text-black transition-all">REDEEM</button>
+                <button className="w-full py-2.5 glass-card text-white font-extrabold text-xs rounded-full tracking-widest hover:bg-gradient-brand hover:text-black transition-all hover-glow-shadow border border-white/10">REDEEM</button>
               </div>
             </div>
           </div>
@@ -289,33 +339,7 @@ export default function Home() {
       </main>
 
       {/* BottomNavBar */}
-      <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#2c2c2c]/60 backdrop-blur-xl rounded-t-[3rem] z-50 shadow-[0px_-24px_48px_rgba(255,143,117,0.08)]">
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-[#ff8f75] to-[#ff7859] text-black rounded-full px-5 py-2 active:scale-90 duration-150">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>home</span>
-          <span className="font-['Inter'] text-[10px] font-medium uppercase tracking-widest">Home</span>
-        </div>
-        <div
-          className="flex flex-col items-center justify-center text-[#adaaaa] px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 cursor-pointer"
-          onClick={() => navigate("/campaign")}
-        >
-          <span className="material-symbols-outlined">explore</span>
-          <span className="font-['Inter'] text-[10px] font-medium uppercase tracking-widest">Campaign</span>
-        </div>
-        <div
-          className="flex flex-col items-center justify-center text-[#adaaaa] px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 cursor-pointer"
-          onClick={() => navigate("/community")}
-        >
-          <span className="material-symbols-outlined">group</span>
-          <span className="font-['Inter'] text-[10px] font-medium uppercase tracking-widest">Community</span>
-        </div>
-        <div
-          className="flex flex-col items-center justify-center text-[#adaaaa] px-5 py-2 hover:text-white transition-all active:scale-90 duration-150 cursor-pointer"
-          onClick={() => navigate("/profile")}
-        >
-          <span className="material-symbols-outlined">settings</span>
-          <span className="font-['Inter'] text-[10px] font-medium uppercase tracking-widest">Settings</span>
-        </div>
-      </nav>
+      <BottomNav active="home" />
     </div>
   );
 }

@@ -3,6 +3,9 @@ const bcrypt = require('bcrypt');
 const User = require('../models/userModel');
 const nodemailer = require('nodemailer');
 
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID_HERE');
+
 // Generate JWT
 const generateToken = (id) => {
     if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET environment variable is not set');
@@ -93,6 +96,7 @@ const registerUser = async (req, res) => {
                 user: {
                     _id: user.id,
                     name: user.name,
+                    username: user.username,
                     email: user.email,
                     role: user.role,
                     token: generateToken(user._id),
@@ -130,6 +134,7 @@ const loginUser = async (req, res) => {
                 user: {
                     _id: user.id,
                     name: user.name,
+                    username: user.username,
                     email: user.email,
                     role: user.role,
                     token: generateToken(user._id),
@@ -156,8 +161,79 @@ const getMe = async (req, res) => {
     }
 };
 
+// @desc    Authenticate a user with Google
+// @route   POST /api/auth/google
+// @access  Public
+const googleLogin = async (req, res) => {
+    try {
+        const { token } = req.body;
+        if (!token) {
+            return res.status(400).json({ success: false, message: 'No token provided' });
+        }
+
+        // Fetch user profile from Google using the access token
+        const { default: axios } = require('axios');
+        const googleRes = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const { email, name, sub: googleId, picture } = googleRes.data;
+
+        let user = await User.findOne({ email });
+
+        if (user) {
+            // Update existing user with google info if needed
+            let isUpdated = false;
+            if (!user.googleId) {
+                user.googleId = googleId;
+                isUpdated = true;
+            }
+            if (!user.avatar && picture) {
+                user.avatar = picture;
+                isUpdated = true;
+            }
+            if (isUpdated) {
+                await user.save();
+            }
+        } else {
+            // Auto-assign admin role if email matches master admin
+            const masterAdminEmail = (process.env.MASTER_ADMIN_EMAIL || '').toLowerCase().trim();
+            const assignedRole = (email.toLowerCase().trim() === masterAdminEmail && masterAdminEmail) ? 'admin' : 'user';
+
+            // Create new user without password since authProvider is google
+            user = await User.create({
+                name,
+                email,
+                googleId,
+                authProvider: 'google',
+                avatar: picture || '',
+                role: assignedRole,
+            });
+            // Send welcome email
+            sendWelcomeEmail(user.email, user.name);
+        }
+
+        res.json({
+            success: true,
+            user: {
+                _id: user.id,
+                name: user.name,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                avatar: user.avatar,
+                token: generateToken(user._id),
+            }
+        });
+    } catch (error) {
+        console.error('Google login error:', error);
+        res.status(401).json({ success: false, message: 'Invalid Google token' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
+    googleLogin,
     getMe,
 };
